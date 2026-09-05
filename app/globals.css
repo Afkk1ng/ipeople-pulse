@@ -153,6 +153,53 @@ html { @apply font-sans; }
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 8%), 0 0 24px rgb(68 246 255 / 10%);
 }
 
+.cyber-reset {
+  position: relative;
+  display: grid;
+  width: 4rem;
+  height: 3.25rem;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid rgb(68 246 255 / 27%);
+  border-radius: 1rem;
+  color: var(--cyan);
+  background: linear-gradient(135deg, rgb(68 246 255 / 12%), rgb(255 79 216 / 13%));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 9%), 0 0 20px rgb(68 246 255 / 11%);
+}
+
+.cyber-reset::before {
+  position: absolute;
+  width: 2.45rem;
+  height: 2.45rem;
+  content: '';
+  border: 1px solid rgb(255 79 216 / 40%);
+  border-radius: 50%;
+  box-shadow: 0 0 14px rgb(255 79 216 / 20%);
+  animation: reset-orbit 3.8s linear infinite;
+}
+
+.cyber-reset:hover::before { animation-duration: 1.2s; }
+
+.reset-clock {
+  display: grid;
+  place-items: center;
+  color: #dffcff;
+  filter: drop-shadow(0 0 7px rgb(68 246 255 / 55%));
+}
+
+.reset-clock svg { width: 1.25rem; height: 1.25rem; }
+
+.reset-arrow {
+  position: absolute;
+  top: .34rem;
+  right: .37rem;
+  width: .9rem;
+  height: .9rem;
+  color: var(--pink);
+  filter: drop-shadow(0 0 6px rgb(255 79 216 / 60%));
+  animation: reset-arrow 2.5s ease-in-out infinite;
+}
+
 .cyber-orbit {
   position: relative;
   display: grid;
@@ -422,7 +469,16 @@ html { @apply font-sans; }
   50% { opacity: 1; transform: scale(1.1); }
 }
 
+@keyframes reset-orbit {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes reset-arrow {
+  0%, 32% { transform: rotate(0); }
+  70%, 100% { transform: rotate(-360deg); }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .cyber-screen::after, .cyber-orbit, .cyber-bars i, .cyber-beam, .cyber-leaders-tab svg, .cyber-stat-icon svg, .cyber-stat-crown .cyber-stat-icon::after { animation: none; }
+  .cyber-screen::after, .cyber-orbit, .cyber-bars i, .cyber-beam, .cyber-reset::before, .reset-arrow, .cyber-leaders-tab svg, .cyber-stat-icon svg, .cyber-stat-crown .cyber-stat-icon::after { animation: none; }
   .cyber-screen button { transition: none; }
 }
