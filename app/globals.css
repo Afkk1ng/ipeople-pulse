@@ -1,0 +1,340 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-destructive: var(--destructive);
+  --radius: 0.75rem;
+}
+
+:root {
+  --background: #f4f7f8;
+  --foreground: #17232d;
+  --primary: #0f766e;
+  --primary-foreground: #fff;
+  --muted: #edf3f4;
+  --muted-foreground: #63808a;
+  --accent: #e7f5f2;
+  --accent-foreground: #0f766e;
+  --border: #dce5e8;
+  --input: #cbd8db;
+  --ring: #3e9d92;
+  --destructive: #b94a4a;
+  --radius: 0.75rem;
+}
+
+* { @apply border-border outline-ring/50; }
+body { @apply bg-background text-foreground; font-family: var(--font-geist-sans), Arial, sans-serif; min-width: 320px; }
+html { @apply font-sans; }
+
+@media (max-width: 640px) {
+  body {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  button, input, [role="combobox"] {
+    touch-action: manipulation;
+  }
+}
+
+/* Motiva's night-shift mode: vivid enough to feel playful, calm enough to use all day. */
+.cyber-screen {
+  --cyan: #44f6ff;
+  --pink: #ff4fd8;
+  --ink: #07101f;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  color: #eaf7ff;
+  background:
+    radial-gradient(circle at 12% -8%, rgb(0 238 255 / 18%), transparent 30rem),
+    radial-gradient(circle at 92% 16%, rgb(255 63 207 / 14%), transparent 26rem),
+    linear-gradient(145deg, #07101f 0%, #090d1a 52%, #110a20 100%);
+}
+
+.cyber-screen::before,
+.cyber-screen::after {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  content: '';
+  pointer-events: none;
+}
+
+.cyber-screen::before {
+  opacity: .23;
+  background-image:
+    linear-gradient(rgb(73 241 255 / 22%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(73 241 255 / 22%) 1px, transparent 1px);
+  background-size: 42px 42px;
+  mask-image: linear-gradient(to bottom, black, transparent 72%);
+}
+
+.cyber-screen::after {
+  top: -55%;
+  height: 26%;
+  opacity: .17;
+  background: linear-gradient(to bottom, transparent, rgb(92 246 255 / 35%), transparent);
+  filter: blur(12px);
+  animation: cyber-scan 12s ease-in-out infinite;
+}
+
+.cyber-screen .text-\[\#1b202a\],
+.cyber-screen h1,
+.cyber-screen h2,
+.cyber-screen p,
+.cyber-screen span,
+.cyber-screen label,
+.cyber-screen td,
+.cyber-screen th {
+  color: inherit;
+}
+
+.cyber-screen .text-\[\#7a8493\],
+.cyber-screen .text-\[\#5b6472\],
+.cyber-screen .text-\[\#697483\],
+.cyber-screen .text-\[\#7c8696\],
+.cyber-screen .text-\[\#798394\],
+.cyber-screen .text-\[\#778292\] {
+  color: #8fa7bc !important;
+}
+
+.cyber-screen .text-\[\#526fff\],
+.cyber-screen .text-\[\#246bfd\],
+.cyber-screen .text-\[\#3c5dcb\],
+.cyber-screen .text-\[\#6976a0\] {
+  color: var(--cyan) !important;
+  text-shadow: 0 0 14px rgb(68 246 255 / 35%);
+}
+
+.cyber-header {
+  border-color: rgb(89 241 255 / 18%) !important;
+  background: rgb(7 14 29 / 74%) !important;
+  box-shadow: 0 1px 0 rgb(255 79 216 / 12%), 0 10px 34px rgb(0 0 0 / 22%);
+}
+
+.cyber-logo {
+  color: #04101d;
+  background: linear-gradient(135deg, var(--cyan), #9a70ff 54%, var(--pink));
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 24%), 0 0 24px rgb(68 246 255 / 38%), 0 0 42px rgb(255 79 216 / 15%);
+}
+
+.cyber-pulse {
+  margin-left: .15em;
+  color: var(--pink) !important;
+  letter-spacing: .12em;
+  text-shadow: 0 0 12px rgb(255 79 216 / 62%);
+}
+
+.cyber-signal {
+  position: relative;
+  display: flex;
+  width: 10rem;
+  height: 3.25rem;
+  align-items: center;
+  justify-content: center;
+  gap: .65rem;
+  overflow: hidden;
+  border: 1px solid rgb(68 246 255 / 24%);
+  border-radius: 1rem;
+  background: linear-gradient(105deg, rgb(68 246 255 / 10%), rgb(255 79 216 / 11%));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 8%), 0 0 24px rgb(68 246 255 / 10%);
+}
+
+.cyber-orbit {
+  position: relative;
+  display: grid;
+  width: 1.35rem;
+  height: 1.35rem;
+  place-items: center;
+  border: 1px solid rgb(68 246 255 / 55%);
+  border-radius: 50%;
+  box-shadow: 0 0 12px rgb(68 246 255 / 45%);
+  animation: signal-orbit 2.8s linear infinite;
+}
+
+.cyber-orbit::before,
+.cyber-orbit::after {
+  position: absolute;
+  content: '';
+  border: 1px solid rgb(255 79 216 / 35%);
+  border-radius: 50%;
+}
+
+.cyber-orbit::before { inset: -.35rem; }
+.cyber-orbit::after { inset: -.7rem; opacity: .45; }
+
+.cyber-orbit i {
+  display: block;
+  width: .34rem;
+  height: .34rem;
+  border-radius: 50%;
+  background: var(--pink);
+  box-shadow: 0 0 13px var(--pink);
+}
+
+.cyber-bars {
+  display: flex;
+  height: 1.25rem;
+  align-items: center;
+  gap: .2rem;
+}
+
+.cyber-bars i {
+  display: block;
+  width: .22rem;
+  border-radius: 99px;
+  background: linear-gradient(to top, var(--cyan), #b98cff);
+  box-shadow: 0 0 8px rgb(68 246 255 / 55%);
+  animation: signal-bars .85s ease-in-out infinite alternate;
+}
+
+.cyber-bars i:nth-child(1) { height: .4rem; animation-delay: -.6s; }
+.cyber-bars i:nth-child(2) { height: 1.05rem; animation-delay: -.2s; }
+.cyber-bars i:nth-child(3) { height: .65rem; animation-delay: -.45s; }
+.cyber-bars i:nth-child(4) { height: .9rem; animation-delay: -.1s; }
+
+.cyber-beam {
+  position: absolute;
+  top: 0;
+  left: -30%;
+  width: 28%;
+  height: 100%;
+  transform: skewX(-22deg);
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 24%), transparent);
+  animation: signal-beam 3.4s ease-in-out infinite;
+}
+
+.cyber-nav {
+  border: 1px solid rgb(126 242 255 / 16%);
+  background: rgb(1 8 20 / 60%) !important;
+}
+
+.cyber-nav button {
+  color: #9bb2c5 !important;
+}
+
+.cyber-nav button.bg-white {
+  color: var(--cyan) !important;
+  background: rgb(69 246 255 / 12%) !important;
+  box-shadow: inset 0 0 0 1px rgb(68 246 255 / 25%), 0 0 16px rgb(68 246 255 / 12%) !important;
+}
+
+.cyber-screen [class*="bg-[#e9ebf1]"],
+.cyber-screen [class*="bg-[#f0f2f6]"] {
+  border: 1px solid rgb(112 235 255 / 14%);
+  background: linear-gradient(145deg, rgb(15 30 53 / 86%), rgb(10 17 35 / 90%)) !important;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 4%), 0 16px 35px rgb(0 0 0 / 14%);
+}
+
+.cyber-screen [class*="bg-white"],
+.cyber-screen aside {
+  border-color: rgb(102 241 255 / 16%) !important;
+  color: #eaf7ff !important;
+  background: linear-gradient(140deg, rgb(17 31 54 / 94%), rgb(8 16 32 / 94%)) !important;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 6%), 0 14px 30px rgb(0 0 0 / 22%) !important;
+}
+
+.cyber-screen input,
+.cyber-screen [role='combobox'] {
+  border: 1px solid rgb(104 238 255 / 15%) !important;
+  color: #f2fbff !important;
+  background: rgb(4 13 29 / 76%) !important;
+  box-shadow: inset 0 0 0 1px rgb(255 79 216 / 4%);
+}
+
+.cyber-screen input:focus,
+.cyber-screen [role='combobox']:focus {
+  border-color: rgb(68 246 255 / 62%) !important;
+  box-shadow: 0 0 0 3px rgb(68 246 255 / 12%), 0 0 18px rgb(68 246 255 / 12%) !important;
+}
+
+/* Select popups are rendered above the page, so they need their own night theme. */
+.cyber-select-content {
+  overflow: hidden !important;
+  border: 1px solid rgb(70 242 255 / 36%) !important;
+  color: #eaf7ff !important;
+  background: linear-gradient(145deg, #102443, #081427) !important;
+  box-shadow: 0 16px 42px rgb(0 0 0 / 48%), 0 0 24px rgb(68 246 255 / 13%) !important;
+}
+
+.cyber-select-content .cyber-select-item {
+  min-height: 2.75rem;
+  padding: .6rem 2.25rem .6rem .85rem;
+  color: #d9eeff !important;
+  font-weight: 650;
+}
+
+.cyber-select-content .cyber-select-item:hover,
+.cyber-select-content .cyber-select-item:focus,
+.cyber-select-content .cyber-select-item[data-highlighted],
+.cyber-select-content .cyber-select-item[data-selected] {
+  color: var(--cyan) !important;
+  background: linear-gradient(90deg, rgb(68 246 255 / 18%), rgb(255 79 216 / 10%)) !important;
+}
+
+.cyber-screen button[class*='bg-[#246bfd]'] {
+  color: #061020 !important;
+  background: linear-gradient(105deg, var(--cyan), #76a4ff 52%, var(--pink)) !important;
+  box-shadow: 0 0 20px rgb(68 246 255 / 25%), 0 0 28px rgb(255 79 216 / 12%) !important;
+}
+
+.cyber-screen [class*='bg-[#183458]'] {
+  border: 1px solid rgb(255 79 216 / 22%);
+  background: linear-gradient(145deg, rgb(39 11 65 / 92%), rgb(8 27 51 / 96%)) !important;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 8%), 0 0 32px rgb(255 79 216 / 10%);
+}
+
+.cyber-screen [class*='bg-[#eaf0ff]'] {
+  background: rgb(68 246 255 / 9%) !important;
+}
+
+.cyber-screen .border-t,
+.cyber-screen [class*='border-[#e'] {
+  border-color: rgb(98 239 255 / 14%) !important;
+}
+
+.cyber-screen button {
+  transition: transform .18s ease, box-shadow .18s ease, background-color .18s ease;
+}
+
+.cyber-screen button:hover {
+  transform: translateY(-1px);
+}
+
+@keyframes cyber-scan {
+  0%, 16% { transform: translateY(0); opacity: 0; }
+  24% { opacity: .17; }
+  42%, 100% { transform: translateY(620%); opacity: 0; }
+}
+
+@keyframes signal-orbit {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes signal-bars {
+  to { transform: scaleY(.42); opacity: .55; }
+}
+
+@keyframes signal-beam {
+  0%, 45% { transform: translateX(0) skewX(-22deg); opacity: 0; }
+  53% { opacity: 1; }
+  75%, 100% { transform: translateX(620%) skewX(-22deg); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cyber-screen::after, .cyber-orbit, .cyber-bars i, .cyber-beam { animation: none; }
+  .cyber-screen button { transition: none; }
+}

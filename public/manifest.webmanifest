@@ -1,0 +1,17 @@
+{
+  "name": "iPeople PULSE — продажі та зарплата",
+  "short_name": "iPeople PULSE",
+  "description": "Щоденний калькулятор зарплати та мотивації команди iPeople.",
+  "display": "standalone",
+  "start_url": "./",
+  "background_color": "#f7f8fb",
+  "theme_color": "#246bfd",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

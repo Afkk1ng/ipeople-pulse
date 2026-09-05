@@ -1,0 +1,31 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Motiva: запустить приложение",
+      "type": "shell",
+      "command": "/Users/afkking/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback/pnpm",
+      "args": ["dev"],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PATH": "/Users/afkking/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin:${env:PATH}"
+        }
+      },
+      "isBackground": true,
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "motiva"
+      },
+      "runOptions": {
+        "runOn": "folderOpen"
+      }
+    }
+  ]
+}
