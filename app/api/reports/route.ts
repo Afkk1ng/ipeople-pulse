@@ -7,6 +7,7 @@ type ReportPayload = {
   date: string;
   total: number;
   text: string;
+  telegramText?: string;
   details?: Record<string, unknown>;
 };
 
@@ -51,11 +52,12 @@ export async function POST(request: Request) {
   let telegramReady = false;
   if (runtime.TELEGRAM_CHAT_ID && runtime.TELEGRAM_BOT_TOKEN) {
     try {
-      const telegramResponse = await fetch(`https://api.telegram.org/bot${runtime.TELEGRAM_BOT_TOKEN}/sendMessage`, {
+      let telegramResponse = await fetch(`https://api.telegram.org/bot${runtime.TELEGRAM_BOT_TOKEN}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chat_id: runtime.TELEGRAM_CHAT_ID, text: report.text }),
+        body: JSON.stringify({ chat_id: runtime.TELEGRAM_CHAT_ID, text: report.telegramText || report.text, parse_mode: report.telegramText ? 'HTML' : undefined }),
       });
+      if (!telegramResponse.ok && report.telegramText) telegramResponse = await fetch(`https://api.telegram.org/bot${runtime.TELEGRAM_BOT_TOKEN}/sendMessage`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ chat_id: runtime.TELEGRAM_CHAT_ID, text: report.text }) });
       telegramReady = telegramResponse.ok;
     } catch { telegramReady = false; }
   }
