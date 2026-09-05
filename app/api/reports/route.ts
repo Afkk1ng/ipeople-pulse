@@ -7,6 +7,7 @@ type ReportPayload = {
   date: string;
   total: number;
   text: string;
+  details?: Record<string, unknown>;
 };
 
 type RuntimeEnv = {
@@ -17,6 +18,21 @@ type RuntimeEnv = {
 
 function json(body: unknown, status = 200) {
   return Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } });
+}
+
+function number(value: unknown) { return typeof value === 'number' && Number.isFinite(value) ? value : 0; }
+
+export async function GET() {
+  const runtime = env as unknown as RuntimeEnv;
+  try {
+    const result = await runtime.DB.prepare('SELECT id, employee, shift_date, total_pay, payload FROM reports ORDER BY submitted_at DESC LIMIT 100').run<{ id: string; employee: string; shift_date: string; total_pay: number; payload: string }>();
+    const reports = result.results.map(row => {
+      let details: Record<string, unknown> = {};
+      try { details = JSON.parse(row.payload) as Record<string, unknown>; } catch { /* Reports created before the shared table use zeroed category details. */ }
+      return { id: row.id, employee: row.employee, date: row.shift_date, base: number(details.base), tech: number(details.tech), accessories: number(details.accessories), services: number(details.services), serviceUnits: number(details.serviceUnits), repairs: number(details.repairs), bonuses: number(details.bonuses), total: row.total_pay, units: number(details.units), turnover: number(details.turnover) };
+    });
+    return json(reports);
+  } catch { return json([], 200); }
 }
 
 export async function POST(request: Request) {
@@ -48,7 +64,7 @@ export async function POST(request: Request) {
   try {
     await runtime.DB.prepare(
       'INSERT INTO reports (id, employee, shift_date, submitted_at, total_pay, payload) VALUES (?, ?, ?, ?, ?, ?)',
-    ).bind(crypto.randomUUID(), report.employee, report.date, Date.now(), Math.round(report.total), report.text).run();
+    ).bind(crypto.randomUUID(), report.employee, report.date, Date.now(), Math.round(report.total), JSON.stringify(report.details ?? {})).run();
     saved = true;
   } catch { saved = false; }
 
