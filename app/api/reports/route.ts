@@ -30,7 +30,7 @@ export async function GET() {
     const reports = result.results.filter(row => row.employee !== 'Технічна перевірка').map(row => {
       let details: Record<string, unknown> = {};
       try { details = JSON.parse(row.payload) as Record<string, unknown>; } catch { /* Reports created before the shared table use zeroed category details. */ }
-      return { id: row.id, employee: row.employee, date: row.shift_date, base: number(details.base), tech: number(details.tech), accessories: number(details.accessories), services: number(details.services), serviceUnits: number(details.serviceUnits), repairs: number(details.repairs), bonuses: number(details.bonuses), total: row.total_pay, units: number(details.units), turnover: number(details.turnover) };
+      return { id: row.id, employee: row.employee, date: row.shift_date, base: number(details.base), tech: number(details.tech), accessories: number(details.accessories), services: number(details.services), serviceUnits: number(details.serviceUnits), repairs: number(details.repairs), bonuses: number(details.bonuses), total: row.total_pay, units: number(details.units), turnover: number(details.turnover), approaches: number(details.approaches) };
     });
     return json(reports);
   } catch { return json([], 200); }

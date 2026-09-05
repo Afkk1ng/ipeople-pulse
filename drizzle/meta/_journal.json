@@ -8,6 +8,20 @@
       "when": 1788608926364,
       "tag": "0000_broken_paper_doll",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1788621170460,
+      "tag": "0001_bumpy_texas_twister",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1788621190034,
+      "tag": "0002_hesitant_gambit",
+      "breakpoints": true
     }
   ]
 }

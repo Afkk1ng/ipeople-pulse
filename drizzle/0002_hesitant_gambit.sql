@@ -1,0 +1,1 @@
+CREATE INDEX `idx_queue_approaches_employee_day` ON `queue_approaches` (`employee`,`shift_date`);
