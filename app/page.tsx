@@ -45,7 +45,7 @@ function Picker({ value, onChange, options, label }: { value: string; onChange: 
 }
 
 function Stepper({ value, onChange, compact = false }: { value: number; onChange: (value: number) => void; compact?: boolean }) {
-  return <div className={`flex items-center justify-between rounded-xl bg-[#f1f3f7] ${compact ? 'px-2 py-1.5' : 'px-3 py-2'}`}><button aria-label="Зменшити" onClick={() => onChange(Math.max(0, value - 1))} className="grid size-7 place-items-center rounded-lg text-[#68717f] hover:bg-white"><Minus className="size-4" /></button><span className="min-w-7 text-center text-base font-bold">{value}</span><button aria-label="Збільшити" onClick={() => onChange(value + 1)} className="grid size-7 place-items-center rounded-lg bg-white text-[#386ff0] shadow-sm hover:bg-[#e6edff]"><Plus className="size-4" /></button></div>;
+  return <div className={`cyber-stepper flex items-center justify-between rounded-xl ${compact ? 'px-2 py-1.5' : 'px-3 py-2'}`}><button aria-label="Зменшити" onClick={() => onChange(Math.max(0, value - 1))} className="cyber-stepper-control grid size-7 place-items-center rounded-lg"><Minus className="size-4" /></button><span className="cyber-stepper-value min-w-7 text-center text-base font-black">{value}</span><button aria-label="Збільшити" onClick={() => onChange(value + 1)} className="cyber-stepper-control grid size-7 place-items-center rounded-lg"><Plus className="size-4" /></button></div>;
 }
 
 function AmountField({ value, onChange, placeholder }: { value: number; onChange: (value: number) => void; placeholder: string }) {
