@@ -1,4 +1,4 @@
-import { index, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { index, integer, primaryKey, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
 export const reports = sqliteTable('reports', {
   id: text('id').primaryKey(),
@@ -27,3 +27,10 @@ export const queueSettings = sqliteTable('queue_settings', {
   key: text('key').primaryKey(),
   value: integer('value').notNull(),
 });
+
+export const teamMoods = sqliteTable('team_moods', {
+  employee: text('employee').notNull(),
+  shiftDate: text('shift_date').notNull(),
+  mood: text('mood').notNull(),
+  updatedAt: integer('updated_at').notNull(),
+}, table => [primaryKey({ columns: [table.employee, table.shiftDate] })]);
