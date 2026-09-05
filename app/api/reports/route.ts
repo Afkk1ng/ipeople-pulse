@@ -36,6 +36,14 @@ export async function GET() {
   } catch { return json([], 200); }
 }
 
+export async function DELETE() {
+  const runtime = env as unknown as RuntimeEnv;
+  try {
+    await runtime.DB.prepare('DELETE FROM reports').run();
+    return json({ cleared: true });
+  } catch { return json({ error: 'Не вдалося очистити таблицю.' }, 500); }
+}
+
 export async function POST(request: Request) {
   let report: ReportPayload;
   try {

@@ -189,6 +189,16 @@ html { @apply font-sans; }
 
 .reset-clock svg { width: 1.25rem; height: 1.25rem; }
 
+.cyber-leaders-reset .reset-clock {
+  color: #ffe18a;
+  filter: drop-shadow(0 0 7px rgb(255 211 88 / 62%));
+}
+
+.cyber-leaders-reset::before {
+  border-color: rgb(255 211 88 / 46%);
+  box-shadow: 0 0 14px rgb(255 211 88 / 24%);
+}
+
 .reset-arrow {
   position: absolute;
   top: .34rem;
