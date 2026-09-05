@@ -360,6 +360,17 @@ html { @apply font-sans; }
   box-shadow: 0 0 20px rgb(68 246 255 / 25%), 0 0 28px rgb(255 79 216 / 12%) !important;
 }
 
+.cyber-screen .cyber-pdf {
+  border: 1px solid rgb(255 79 216 / 35%) !important;
+  color: #f7eaff !important;
+  background: linear-gradient(105deg, rgb(107 51 179 / 72%), rgb(255 79 216 / 42%)) !important;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 15%), 0 0 18px rgb(255 79 216 / 16%) !important;
+}
+
+.cyber-screen .cyber-pdf svg {
+  animation: pdf-float 2.6s ease-in-out infinite;
+}
+
 .cyber-screen [class*='bg-[#183458]'] {
   border: 1px solid rgb(255 79 216 / 22%);
   background: linear-gradient(145deg, rgb(39 11 65 / 92%), rgb(8 27 51 / 96%)) !important;
@@ -478,7 +489,12 @@ html { @apply font-sans; }
   70%, 100% { transform: rotate(-360deg); }
 }
 
+@keyframes pdf-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .cyber-screen::after, .cyber-orbit, .cyber-bars i, .cyber-beam, .cyber-reset::before, .reset-arrow, .cyber-leaders-tab svg, .cyber-stat-icon svg, .cyber-stat-crown .cyber-stat-icon::after { animation: none; }
+  .cyber-screen::after, .cyber-orbit, .cyber-bars i, .cyber-beam, .cyber-reset::before, .reset-arrow, .cyber-leaders-tab svg, .cyber-stat-icon svg, .cyber-stat-crown .cyber-stat-icon::after, .cyber-screen .cyber-pdf svg { animation: none; }
   .cyber-screen button { transition: none; }
 }
