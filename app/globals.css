@@ -265,6 +265,7 @@ html { @apply font-sans; }
 }
 
 .cyber-nav {
+  gap: .4rem;
   border: 1px solid rgb(126 242 255 / 16%);
   background: rgb(1 8 20 / 60%) !important;
 }
