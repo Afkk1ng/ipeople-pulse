@@ -164,6 +164,16 @@ html { @apply font-sans; }
 .mood-choice-active span { filter: none; animation: mood-pop .55s ease both; }
 .mood-choice:disabled { opacity: .6; }
 
+.cyber-person-edit {
+  border: 1px solid rgb(68 246 255 / 34%);
+  color: var(--cyan);
+  background: linear-gradient(135deg, rgb(68 246 255 / 10%), rgb(151 93 255 / 14%));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 10%), 0 0 14px rgb(68 246 255 / 10%);
+}
+
+.cyber-person-edit:hover { border-color: rgb(68 246 255 / 68%); box-shadow: inset 0 1px 0 rgb(255 255 255 / 14%), 0 0 18px rgb(68 246 255 / 22%); }
+.cyber-person-edit:disabled { cursor: wait; opacity: .55; }
+
 .cyber-signal {
   position: relative;
   display: flex;
