@@ -32,26 +32,27 @@ export async function POST(request: Request) {
   }
 
   const runtime = env as unknown as RuntimeEnv;
-  const id = crypto.randomUUID();
-  const submittedAt = Date.now();
-
-  await runtime.DB.prepare(
-    'INSERT INTO reports (id, employee, shift_date, submitted_at, total_pay, payload) VALUES (?, ?, ?, ?, ?, ?)',
-  ).bind(id, report.employee, report.date, submittedAt, Math.round(report.total), report.text).run();
-
-  if (!runtime.TELEGRAM_CHAT_ID) {
-    return json({ saved: true, telegramReady: false });
+  let telegramReady = false;
+  if (runtime.TELEGRAM_CHAT_ID && runtime.TELEGRAM_BOT_TOKEN) {
+    try {
+      const telegramResponse = await fetch(`https://api.telegram.org/bot${runtime.TELEGRAM_BOT_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: runtime.TELEGRAM_CHAT_ID, text: report.text }),
+      });
+      telegramReady = telegramResponse.ok;
+    } catch { telegramReady = false; }
   }
 
-  const telegramResponse = await fetch(`https://api.telegram.org/bot${runtime.TELEGRAM_BOT_TOKEN}/sendMessage`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ chat_id: runtime.TELEGRAM_CHAT_ID, text: report.text }),
-  });
+  let saved = false;
+  try {
+    await runtime.DB.prepare(
+      'INSERT INTO reports (id, employee, shift_date, submitted_at, total_pay, payload) VALUES (?, ?, ?, ?, ?, ?)',
+    ).bind(crypto.randomUUID(), report.employee, report.date, Date.now(), Math.round(report.total), report.text).run();
+    saved = true;
+  } catch { saved = false; }
 
-  if (!telegramResponse.ok) {
-    return json({ saved: true, telegramReady: false }, 202);
-  }
-
-  return json({ saved: true, telegramReady: true });
+  if (telegramReady) return json({ saved, telegramReady: true });
+  if (saved) return json({ saved: true, telegramReady: false }, 202);
+  return json({ error: 'Не вдалося передати звіт. Спробуйте ще раз.' }, 503);
 }
