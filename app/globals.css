@@ -433,6 +433,17 @@ html { @apply font-sans; }
   border-color: rgb(98 239 255 / 14%) !important;
 }
 
+.cyber-screen thead[class*='bg-[#f4f6f9]'] {
+  color: #75f7ff !important;
+  background: linear-gradient(100deg, #071a34, #152554 54%, #32114e) !important;
+  box-shadow: inset 0 1px 0 rgb(129 248 255 / 20%), inset 0 -1px 0 rgb(255 79 216 / 26%), 0 0 18px rgb(68 246 255 / 10%);
+}
+
+.cyber-screen thead[class*='bg-[#f4f6f9]'] th {
+  color: #75f7ff !important;
+  text-shadow: 0 0 9px rgb(68 246 255 / 48%);
+}
+
 .cyber-screen button {
   transition: transform .18s ease, box-shadow .18s ease, background-color .18s ease;
 }
