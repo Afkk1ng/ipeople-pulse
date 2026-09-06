@@ -798,6 +798,7 @@ html { @apply font-sans; }
 .live-next { min-width: 8.5rem; padding: .65rem .85rem; text-align: right; }
 .live-next small { display: block; color: #86a7c4; font-size: .66rem; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; }
 .live-next b { display: block; margin-top: .1rem; color: #75f7ff; font-size: 1.05rem; }
+.live-next em { display: block; margin-top: .2rem; color: #a6bad1; font-size: .68rem; font-style: normal; font-weight: 700; }
 .live-queue-state { display: flex; align-items: center; justify-content: center; gap: .45rem; min-height: 2.75rem; padding: .45rem .8rem; font-size: .82rem; }
 .live-action { font-weight: 850; }
 .live-action-join { color: #06101f !important; background: linear-gradient(100deg, #3df1f6, #6eaeff, #ee58d9) !important; box-shadow: 0 0 22px rgb(68 246 255 / 22%); }
