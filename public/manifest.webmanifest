@@ -4,14 +4,14 @@
   "description": "Щоденний калькулятор зарплати та мотивації команди iPeople.",
   "display": "standalone",
   "start_url": "./",
-  "background_color": "#f7f8fb",
-  "theme_color": "#246bfd",
+  "background_color": "#071226",
+  "theme_color": "#09162b",
   "icons": [
     {
-      "src": "favicon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any"
+      "src": "ipeople-pulse-icon-v2.png",
+      "sizes": "1254x1254",
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }

@@ -488,6 +488,23 @@ html { @apply font-sans; }
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 15%), 0 0 18px rgb(255 79 216 / 16%) !important;
 }
 
+.cyber-screen .cyber-draft-save {
+  color: #062131;
+  background: linear-gradient(110deg, #44f6ff, #79b9ff 52%, #db59ed);
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 60%), 0 0 20px rgb(68 246 255 / 26%);
+}
+
+.cyber-screen .cyber-draft-save:hover {
+  filter: brightness(1.08);
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 78%), 0 0 28px rgb(68 246 255 / 38%);
+}
+
+.cyber-screen .cyber-draft-note {
+  min-height: 1rem;
+  color: #78f7ff;
+  text-shadow: 0 0 12px rgb(68 246 255 / 28%);
+}
+
 .cyber-screen .cyber-pdf svg {
   animation: pdf-float 2.6s ease-in-out infinite;
 }

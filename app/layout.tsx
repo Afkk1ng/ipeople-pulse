@@ -15,6 +15,11 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: 'iPeople PULSE — продажі та зарплата',
   description: 'Щоденний калькулятор зарплати та мотивації команди iPeople.',
+  manifest: '/manifest.webmanifest',
+  icons: {
+    icon: [{ url: '/ipeople-pulse-icon-v2.png', type: 'image/png', sizes: '1254x1254' }],
+    apple: [{ url: '/ipeople-pulse-icon-v2.png', type: 'image/png', sizes: '180x180' }],
+  },
 };
 
 export const viewport: Viewport = {
