@@ -47,6 +47,36 @@ html { @apply font-sans; }
   button, input, [role="combobox"] {
     touch-action: manipulation;
   }
+
+  .cyber-header > div {
+    flex-wrap: wrap;
+    gap: .7rem;
+    padding-top: max(.75rem, calc(env(safe-area-inset-top) + .35rem)) !important;
+    padding-bottom: .75rem !important;
+  }
+
+  .cyber-header nav {
+    order: 2;
+    display: grid !important;
+    width: 100%;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .cyber-nav { gap: .18rem; }
+
+  .cyber-nav button {
+    min-width: 0;
+    justify-content: center;
+    padding: .58rem .26rem !important;
+    font-size: .76rem !important;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .cyber-nav .cyber-leaders-tab,
+  .cyber-nav .cyber-randomizer-tab { gap: .22rem; }
+
+  .cyber-nav svg { width: .88rem; height: .88rem; }
 }
 
 /* Motiva's night-shift mode: vivid enough to feel playful, calm enough to use all day. */
