@@ -17,9 +17,11 @@ type RuntimeEnv = {
   TELEGRAM_CHAT_ID?: string;
 };
 
+const corsHeaders = { 'Access-Control-Allow-Origin': 'https://afkk1ng.github.io', 'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type', Vary: 'Origin' };
 function json(body: unknown, status = 200) {
-  return Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } });
+  return Response.json(body, { status, headers: { 'Cache-Control': 'no-store', ...corsHeaders } });
 }
+export function OPTIONS() { return new Response(null, { status: 204, headers: corsHeaders }); }
 
 function number(value: unknown) { return typeof value === 'number' && Number.isFinite(value) ? value : 0; }
 

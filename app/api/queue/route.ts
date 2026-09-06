@@ -8,7 +8,9 @@ type QueueAction = 'approach' | 'join' | 'break' | 'freeze' | 'return';
 const defaultTeam = ['Макс', 'Алина', 'Алексей', 'Коля', 'Ксюша', 'Ира', 'Арсен'];
 const today = () => new Date().toISOString().slice(0, 10);
 const safeHtml = (value: string) => value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-const json = (body: unknown, status = 200) => Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } });
+const corsHeaders = { 'Access-Control-Allow-Origin': 'https://afkk1ng.github.io', 'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type', Vary: 'Origin' };
+const json = (body: unknown, status = 200) => Response.json(body, { status, headers: { 'Cache-Control': 'no-store', ...corsHeaders } });
+export function OPTIONS() { return new Response(null, { status: 204, headers: corsHeaders }); }
 
 export async function GET() {
   const runtime = env as unknown as RuntimeEnv;

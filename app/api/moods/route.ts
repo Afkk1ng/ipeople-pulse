@@ -6,7 +6,9 @@ type RuntimeEnv = { DB: D1Database };
 type Mood = 'low' | 'okay' | 'great';
 const moods: Mood[] = ['low', 'okay', 'great'];
 const today = () => new Date().toISOString().slice(0, 10);
-const json = (body: unknown, status = 200) => Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } });
+const corsHeaders = { 'Access-Control-Allow-Origin': 'https://afkk1ng.github.io', 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type', Vary: 'Origin' };
+const json = (body: unknown, status = 200) => Response.json(body, { status, headers: { 'Cache-Control': 'no-store', ...corsHeaders } });
+export function OPTIONS() { return new Response(null, { status: 204, headers: corsHeaders }); }
 
 async function currentMoodState(database: D1Database) {
   const rows = await database.prepare('SELECT employee, mood FROM team_moods WHERE shift_date = ?').bind(today()).run<{ employee: string; mood: Mood }>();
