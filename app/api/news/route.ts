@@ -26,10 +26,10 @@ export async function GET() {
 
 export async function POST(request: Request) {
   let body: { message?: unknown; author?: unknown };
-  try { body = await request.json(); } catch { return json({ error: 'Некоректне послання.' }, 400); }
+  try { body = await request.json(); } catch { return json({ error: 'Некоректна новина.' }, 400); }
   const message = typeof body.message === 'string' ? body.message.replace(/\r\n?/g, '\n').trim().slice(0, 360) : '';
   const author = typeof body.author === 'string' ? body.author.trim().replace(/\s+/g, ' ').slice(0, 80) : '';
-  if (!message || !author) return json({ error: 'Напишіть послання та оберіть співробітника.' }, 400);
+  if (!message || !author) return json({ error: 'Напишіть новину та оберіть співробітника.' }, 400);
   try {
     const database = (env as unknown as RuntimeEnv).DB;
     const updatedAt = Date.now();
