@@ -1,0 +1,1 @@
+ALTER TABLE `queue_entries` ADD `status` text DEFAULT 'active' NOT NULL;

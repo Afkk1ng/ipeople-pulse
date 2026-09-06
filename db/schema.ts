@@ -13,6 +13,7 @@ export const queueEntries = sqliteTable('queue_entries', {
   id: text('id').primaryKey(),
   employee: text('employee').notNull().unique(),
   position: integer('position').notNull(),
+  status: text('status').notNull().default('active'),
   updatedAt: integer('updated_at').notNull(),
 });
 
