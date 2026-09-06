@@ -64,12 +64,12 @@ export async function POST(request: Request) {
     if (notifications?.value !== 0 && runtime.TELEGRAM_BOT_TOKEN && runtime.TELEGRAM_CHAT_ID) {
       const actionText: Record<QueueAction, string> = {
         approach: `відмітив підхід до клієнта.\n📊 Підходів сьогодні: <b>${count}</b>`,
-        join: 'став у живу чергу.',
+        join: 'став у чергу.',
         break: 'пішов на перекур і перейшов у кінець черги.',
         freeze: 'позначив робочі потреби — чергу призупинено.',
         return: 'повернувся в чергу.',
       };
-      await fetch(`https://api.telegram.org/bot${runtime.TELEGRAM_BOT_TOKEN}/sendMessage`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ chat_id: runtime.TELEGRAM_CHAT_ID, parse_mode: 'HTML', text: `🎯 <b>Жива черга iPeople PULSE</b>\n👤 <b>${safeHtml(employee)}</b> ${actionText[action]}` }) });
+      await fetch(`https://api.telegram.org/bot${runtime.TELEGRAM_BOT_TOKEN}/sendMessage`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ chat_id: runtime.TELEGRAM_CHAT_ID, parse_mode: 'HTML', text: `🎯 <b>Черга · iPeople PULSE</b>\n👤 <b>${safeHtml(employee)}</b> ${actionText[action]}` }) });
     }
     return json({ employee, action, count });
   } catch { return json({ error: 'Не вдалося зберегти відмітку.' }, 500); }
