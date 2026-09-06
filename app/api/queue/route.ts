@@ -6,7 +6,7 @@ type RuntimeEnv = { DB: D1Database; TELEGRAM_BOT_TOKEN?: string; TELEGRAM_CHAT_I
 type QueueAction = 'approach' | 'join' | 'break' | 'freeze' | 'return';
 type QueueState = { queue: string[]; frozenEmployees: string[]; approachCounts: Record<string, number>; notificationsEnabled: boolean };
 
-const defaultTeam = ['Макс', 'Алина', 'Алексей', 'Коля', 'Ксюша', 'Ира', 'Арсен'];
+const defaultTeam = ['Макс', 'Алина', 'Алексей', 'Коля', 'Ксюша', 'Ира'];
 const today = () => new Date().toISOString().slice(0, 10);
 const safeHtml = (value: string) => value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const corsHeaders = { 'Access-Control-Allow-Origin': 'https://afkk1ng.github.io', 'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type', Vary: 'Origin' };
