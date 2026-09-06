@@ -35,3 +35,10 @@ export const teamMoods = sqliteTable('team_moods', {
   mood: text('mood').notNull(),
   updatedAt: integer('updated_at').notNull(),
 }, table => [primaryKey({ columns: [table.employee, table.shiftDate] })]);
+
+export const teamNews = sqliteTable('team_news', {
+  id: text('id').primaryKey(),
+  message: text('message').notNull(),
+  author: text('author').notNull(),
+  updatedAt: integer('updated_at').notNull(),
+});

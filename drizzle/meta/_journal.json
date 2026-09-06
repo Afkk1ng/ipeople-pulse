@@ -36,6 +36,13 @@
       "when": 1788680865565,
       "tag": "0004_living_white_tiger",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1788713390775,
+      "tag": "0005_long_stingray",
+      "breakpoints": true
     }
   ]
 }
