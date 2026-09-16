@@ -294,6 +294,11 @@ button, a, input, select { -webkit-tap-highlight-color: transparent; }
 .color-mapping__list span { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #6d5c4d; font-size: 12px; }
 .color-mapping__list select { height: 34px; padding: 0 8px; border: 1px solid #eadfce; border-radius: 9px; color: #364e60; background: white; font-size: 12px; }
 
+.plan-execution { margin-top: 14px; }
+.plan-execution [data-slot="table-container"] { border-top: 1px solid #e3eaed; }
+.plan-progress { display: inline-flex; min-width: 76px; justify-content: center; padding: 5px 8px; border-radius: 999px; color: #925028; background: #fff0e6; font-size: 12px; font-weight: 800; }
+.plan-progress--done { color: #0b7065; background: #dff7f3; }
+
 .eyebrow, .panel-kicker {
   margin: 0 0 4px;
   color: #168f82;

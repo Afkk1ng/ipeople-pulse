@@ -58,7 +58,20 @@ declare global {
   }
 }
 
-const SERVICE_WORDS = ["пакет послуг", "послуга", "чистк", "налашту", "перенес", "установк", "istart"];
+const SERVICE_WORDS = [
+  "пакет послуг",
+  "послуга",
+  "чистк",
+  "налашту",
+  "перенес",
+  "установк",
+  "istart",
+  "icare",
+  "i care",
+  "icare+",
+  "icare +",
+  "i care +",
+];
 const REPAIR_WORDS = ["ремонт", "repair"];
 const TECHNIQUE_PREFIXES = [
   "iphone",

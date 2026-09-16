@@ -448,6 +448,20 @@ function Dashboard() {
     };
   }, [periodRecords]);
 
+  const storePlanProgress = useMemo(() => {
+    const servicesRevenue = periodRecords
+      .filter((sale) => sale.category === "Услуги")
+      .reduce((sum, sale) => sum + sale.revenue, 0);
+    const accessoriesRevenue = periodRecords
+      .filter((sale) => sale.category === "Аксессуары")
+      .reduce((sum, sale) => sum + sale.revenue, 0);
+    return [
+      { label: "Услуги", actual: servicesRevenue, plan: republicPlans.servicesTarget, unit: "₴" },
+      { label: "Аксессуары", actual: accessoriesRevenue, plan: republicPlans.accessoriesTarget, unit: "₴" },
+      { label: "Техника", actual: baseCounts.technique, plan: null, unit: "шт." },
+    ];
+  }, [baseCounts.technique, periodRecords, republicPlans.accessoriesTarget, republicPlans.servicesTarget]);
+
   const payrollResults = useMemo(() => republicPlans.employees.map((employee) => {
     const settings = payrollSettings[employee.name] ?? {
       dailyRate: 500,
@@ -734,6 +748,33 @@ function Dashboard() {
               </div>
             </div>
           )}
+        </section>
+
+        <section className="plan-execution panel" aria-labelledby="store-plan-title">
+          <div className="panel-heading">
+            <div>
+              <p className="panel-kicker">Республіка · магазин</p>
+              <h3 id="store-plan-title">Выполнение плана</h3>
+            </div>
+            <span>Услуги и аксессуары — план, техника — фактическое количество</span>
+          </div>
+          <Table>
+            <TableHeader>
+              <TableRow><TableHead>Показатель</TableHead><TableHead className="text-right">Факт</TableHead><TableHead className="text-right">План</TableHead><TableHead className="text-right">Выполнение</TableHead></TableRow>
+            </TableHeader>
+            <TableBody>
+              {storePlanProgress.map((item) => {
+                const progress = item.plan ? item.actual / item.plan : null;
+                const format = item.unit === "₴" ? currency.format : (value: number) => `${value} ${item.unit}`;
+                return <TableRow key={item.label}>
+                  <TableCell className="font-semibold">{item.label}</TableCell>
+                  <TableCell className="text-right font-semibold tabular-nums">{format(item.actual)}</TableCell>
+                  <TableCell className="text-right tabular-nums">{item.plan ? format(item.plan) : "—"}</TableCell>
+                  <TableCell className="text-right"><span className={progress !== null && progress >= 1 ? "plan-progress plan-progress--done" : "plan-progress"}>{progress === null ? "без плана" : `${(progress * 100).toFixed(1)}%`}</span></TableCell>
+                </TableRow>;
+              })}
+            </TableBody>
+          </Table>
         </section>
 
         <section className="filter-row" aria-label="Фильтры отчёта">
