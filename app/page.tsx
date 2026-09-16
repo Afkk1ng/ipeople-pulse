@@ -185,6 +185,8 @@ function createPayrollSettings(plans: RepublicPlans, current: Record<string, Emp
     return [employee.name, {
       dailyRate: previous?.dailyRate ?? 500,
       workDays: previous?.workDays ?? 0,
+      focusEarnings: previous?.focusEarnings ?? 0,
+      repairEarnings: previous?.repairEarnings ?? 0,
       servicesTarget: previous?.servicesTarget ?? Math.round(plans.servicesTarget * employee.servicesShare),
       accessoriesTarget: previous?.accessoriesTarget ?? Math.round(plans.accessoriesTarget * employee.accessoriesShare),
     }];
@@ -553,14 +555,18 @@ function Dashboard() {
     const settings = payrollSettings[employee.name] ?? {
       dailyRate: 500,
       workDays: 0,
+      focusEarnings: 0,
+      repairEarnings: 0,
       servicesTarget: Math.round(republicPlans.servicesTarget * employee.servicesShare),
       accessoriesTarget: Math.round(republicPlans.accessoriesTarget * employee.accessoriesShare),
     };
     return calculatePayroll(employee.name, periodRecords, {
       services: settings.servicesTarget,
       accessories: settings.accessoriesTarget,
+      storeServices: republicPlans.servicesTarget,
+      storeServicesRevenue: storePlanProgress[0].actual,
     }, settings);
-  }), [payrollSettings, periodRecords, republicPlans]);
+  }), [payrollSettings, periodRecords, republicPlans, storePlanProgress]);
 
   const dailyData = useMemo(() => {
     const days = new Map<string, number>();
@@ -761,7 +767,7 @@ function Dashboard() {
             <div>
               <p className="panel-kicker">Республіка · мотивация</p>
               <h2 id="payroll-title">Планы и ЗП сотрудников</h2>
-              <p>Ставки перенесены из старого iPeople Plus. Продажа относится сотруднику только по имени в строке.</p>
+              <p>Услуги: 20% базово, 25% при личном плане, 30% при плане магазина, 35% при плане магазина и личной конверсии от 60%. Продажа относится сотруднику только по имени.</p>
             </div>
             <Button type="button" variant="outline" onClick={syncRepublicPlans} disabled={plansStatus.state === "loading"}>
               <RefreshCw className={plansStatus.state === "loading" ? "animate-spin" : ""} aria-hidden="true" />
@@ -812,11 +818,18 @@ function Dashboard() {
                     <label>Ставка/день<Input type="number" min="0" value={settings.dailyRate} onChange={(event) => updatePayrollSetting(employee.name, "dailyRate", Number(event.target.value))} /></label>
                     <label>Смены<Input type="number" min="0" value={settings.workDays} onChange={(event) => updatePayrollSetting(employee.name, "workDays", Number(event.target.value))} /></label>
                   </div>
+                  <div className="employee-extra-inputs">
+                    <label>Заработок с фокуса<Input type="number" min="0" value={settings.focusEarnings} onChange={(event) => updatePayrollSetting(employee.name, "focusEarnings", Number(event.target.value))} /></label>
+                    <label>Заработок с ремонтов<Input type="number" min="0" value={settings.repairEarnings} onChange={(event) => updatePayrollSetting(employee.name, "repairEarnings", Number(event.target.value))} /></label>
+                  </div>
                   <div className="payroll-breakdown">
                     <span>Ставка <b>{currency.format(payroll.basePay)}</b></span>
                     <span>Техника <b>{currency.format(payroll.techPay)}</b></span>
                     <span>Аксессуары {Math.round(payroll.accessoriesProgress * 100)}% <b>{currency.format(payroll.accessoriesPay)}</b></span>
-                    <span>Услуги {Math.round(payroll.serviceProgress * 100)}% <b>{currency.format(payroll.servicesPay)}</b></span>
+                    <span>Услуги · ставка {Math.round(payroll.serviceRate * 100)}% <b>{currency.format(payroll.servicesPay)}</b></span>
+                    <span>Конверсия услуг {Math.round(payroll.serviceConversion * 100)}% <b>{payroll.serviceUnits}/{payroll.techUnits}</b></span>
+                    <span>Фокус <b>{currency.format(payroll.focusPay)}</b></span>
+                    <span>Ремонты <b>{currency.format(payroll.repairsPay)}</b></span>
                   </div>
                 </article>
               );

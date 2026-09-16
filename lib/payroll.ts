@@ -1,18 +1,35 @@
 import type { ImportedSale } from "@/lib/google-sheets";
 
-export type PayrollSettings = { dailyRate: number; workDays: number };
+export type PayrollSettings = {
+  dailyRate: number;
+  workDays: number;
+  focusEarnings: number;
+  repairEarnings: number;
+};
+
+export type PayrollTargets = {
+  services: number;
+  accessories: number;
+  storeServices: number;
+  storeServicesRevenue: number;
+};
 
 export type PayrollResult = {
   employee: string;
   servicesRevenue: number;
   accessoriesRevenue: number;
   techUnits: number;
+  serviceUnits: number;
+  serviceConversion: number;
+  serviceRate: number;
+  storeServicePlanMet: boolean;
   serviceProgress: number;
   accessoriesProgress: number;
   basePay: number;
   techPay: number;
   accessoriesPay: number;
   servicesPay: number;
+  focusPay: number;
   repairsPay: number;
   total: number;
   attributedRows: number;
@@ -34,10 +51,10 @@ function techUnitRate(name: string) {
   return 80;
 }
 
-function serviceRate(progress: number) {
-  if (progress >= 1.5) return 0.35;
-  if (progress >= 1.2) return 0.3;
-  if (progress >= 1) return 0.25;
+function serviceRate(personalPlanMet: boolean, storePlanMet: boolean, conversion: number) {
+  if (storePlanMet && conversion >= 0.6) return 0.35;
+  if (storePlanMet) return 0.3;
+  if (personalPlanMet) return 0.25;
   return 0.2;
 }
 
@@ -45,38 +62,46 @@ function serviceRate(progress: number) {
 export function calculatePayroll(
   employee: string,
   rows: ImportedSale[],
-  targets: { services: number; accessories: number },
+  targets: PayrollTargets,
   settings: PayrollSettings,
 ): PayrollResult {
   const owned = rows.filter((sale) => sale.employee === employee);
   const services = owned.filter((sale) => sale.category === "Услуги");
   const accessories = owned.filter((sale) => sale.category === "Аксессуары");
   const tech = owned.filter((sale) => sale.category === "Техника");
-  const repairs = owned.filter((sale) => sale.category === "Ремонты");
   const servicesRevenue = services.reduce((sum, sale) => sum + sale.revenue, 0);
   const accessoriesRevenue = accessories.reduce((sum, sale) => sum + sale.revenue, 0);
   const serviceProgress = targets.services > 0 ? servicesRevenue / targets.services : 0;
   const accessoriesProgress = targets.accessories > 0 ? accessoriesRevenue / targets.accessories : 0;
+  const serviceConversion = tech.length > 0 ? services.length / tech.length : 0;
+  const storeServicePlanMet = targets.storeServices > 0 && targets.storeServicesRevenue >= targets.storeServices;
+  const appliedServiceRate = serviceRate(serviceProgress >= 1, storeServicePlanMet, serviceConversion);
   const techPay = tech.reduce((sum, sale) => sum + techUnitRate(sale.name), 0);
   const accessoriesPay = accessories.reduce((sum, sale) => sum + Math.round(sale.revenue * accessoryRate(sale, accessoriesProgress)), 0);
-  const servicesPay = Math.round(servicesRevenue * serviceRate(serviceProgress));
-  // Legacy rule pays 5% from repair profit. Sales data contains revenue only,
-  // so repairs remain excluded until profit is entered in a future import.
-  const repairsPay = repairs.length ? 0 : 0;
+  const servicesPay = Math.round(servicesRevenue * appliedServiceRate);
+  const focusPay = Math.max(0, settings.focusEarnings);
+  // Repair revenue remains analytics-only. The actual repair earning is entered
+  // manually because the sales feed does not contain the employee's repair profit.
+  const repairsPay = Math.max(0, settings.repairEarnings);
   const basePay = Math.max(0, settings.dailyRate) * Math.max(0, settings.workDays);
   return {
     employee,
     servicesRevenue,
     accessoriesRevenue,
     techUnits: tech.length,
+    serviceUnits: services.length,
+    serviceConversion,
+    serviceRate: appliedServiceRate,
+    storeServicePlanMet,
     serviceProgress,
     accessoriesProgress,
     basePay,
     techPay,
     accessoriesPay,
     servicesPay,
+    focusPay,
     repairsPay,
-    total: basePay + techPay + accessoriesPay + servicesPay + repairsPay,
+    total: basePay + techPay + accessoriesPay + servicesPay + focusPay + repairsPay,
     attributedRows: owned.length,
   };
 }

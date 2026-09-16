@@ -101,9 +101,13 @@ export async function buildShiftClosingReport(shift: MoySkladRetailShift): Promi
     const payroll = calculatePayroll(employee.name, monthRecords, {
       services: configured?.servicesTarget ?? Math.round(plans.servicesTarget * employee.servicesShare),
       accessories: configured?.accessoriesTarget ?? Math.round(plans.accessoriesTarget * employee.accessoriesShare),
+      storeServices: plans.servicesTarget,
+      storeServicesRevenue: monthServices,
     }, {
       dailyRate: configured?.dailyRate ?? 500,
       workDays,
+      focusEarnings: configured?.focusEarnings ?? 0,
+      repairEarnings: configured?.repairEarnings ?? 0,
     });
     return {
       name: employee.name,
@@ -112,6 +116,9 @@ export async function buildShiftClosingReport(shift: MoySkladRetailShift): Promi
       accessories: categoryCount(today, "Аксессуары"),
       services: categoryCount(today, "Услуги"),
       payroll: payroll.total,
+      focusPay: payroll.focusPay,
+      repairsPay: payroll.repairsPay,
+      serviceRate: payroll.serviceRate,
       rows: today.length,
     };
   });
@@ -125,10 +132,10 @@ export async function buildShiftClosingReport(shift: MoySkladRetailShift): Promi
   const accessoryProgress = plans.accessoriesTarget ? Math.round(monthAccessories / plans.accessoriesTarget * 1000) / 10 : 0;
 
   const employeeHtml = employeeRows.filter((row) => row.rows > 0).map((row) =>
-    `👤 <b>${html(row.name)}</b> · ${money.format(row.revenue)}\n   📱 ${row.technique} · 🎧 ${row.accessories} · 🛠 ${row.services}\n   💰 ЗП за місяць: <b>${money.format(row.payroll)}</b>`,
+    `👤 <b>${html(row.name)}</b> · ${money.format(row.revenue)}\n   📱 ${row.technique} · 🎧 ${row.accessories} · 🛠 ${row.services}\n   💼 Послуги: ${Math.round(row.serviceRate * 100)}% · фокус ${money.format(row.focusPay)} · ремонти ${money.format(row.repairsPay)}\n   💰 ЗП за місяць: <b>${money.format(row.payroll)}</b>`,
   );
   const employeeText = employeeRows.filter((row) => row.rows > 0).map((row) =>
-    `${row.name}: ${money.format(row.revenue)} · техніка ${row.technique} · акс. ${row.accessories} · послуги ${row.services} · ЗП за місяць ${money.format(row.payroll)}`,
+    `${row.name}: ${money.format(row.revenue)} · техніка ${row.technique} · акс. ${row.accessories} · послуги ${row.services} (${Math.round(row.serviceRate * 100)}%) · фокус ${money.format(row.focusPay)} · ремонти ${money.format(row.repairsPay)} · ЗП за місяць ${money.format(row.payroll)}`,
   );
 
   const telegramHtml = [
