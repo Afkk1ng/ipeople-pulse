@@ -74,7 +74,13 @@ type SavedDashboardState = {
 
 const snapshotRecords = salesData as Sale[];
 const categories: CategoryFilter[] = ["Все", "Техника", "Аксессуары", "Услуги"];
-const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? "";
+// OAuth client IDs identify the browser application and are intentionally public.
+// Keep the environment variable as the primary setting, with the configured
+// production client as a fallback so the import UI remains available after a
+// static client bundle is published.
+const googleClientId =
+  process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
+  "1018608747117-90sj8o6p0uv62iigupdt2bqo2bp2l335.apps.googleusercontent.com";
 const storageKey = "republic-sales-dashboard-v1";
 const snapshotBounds = dateBounds(snapshotRecords);
 
