@@ -276,6 +276,8 @@ button, a, input, select { -webkit-tap-highlight-color: transparent; }
 .payroll-card__head h3 { margin: 0; font-size: 16px; letter-spacing: -0.02em; }
 .payroll-card__head > strong { color: #0f7067; font-size: 19px; white-space: nowrap; }
 .payroll-card__rows { margin: 7px 0 12px; color: #718698; font-size: 12px; }
+.employee-alias-input { display: grid; gap: 4px; margin-bottom: 9px; color: #61798b; font-size: 11px; font-weight: 700; }
+.employee-alias-input input { height: 34px; font-size: 12px; font-weight: 700; }
 .employee-plan-inputs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 7px; }
 .employee-plan-inputs label { display: grid; gap: 4px; color: #61798b; font-size: 11px; font-weight: 700; }
 .employee-plan-inputs input { min-width: 0; height: 34px; padding-inline: 7px; font-size: 12px; font-weight: 800; }

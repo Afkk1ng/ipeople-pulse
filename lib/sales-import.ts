@@ -22,14 +22,13 @@ export function normalizeColor(value: string | null | undefined) {
 }
 
 /**
- * Uses a visible staff name first and row color as a second, independent signal.
- * A disagreement is deliberately held for review rather than credited to anyone.
+ * A written name is the primary signal. Color is merely a fallback for rows
+ * without a name, so a salesperson can use any highlight color in a sheet.
  */
 export function resolveEmployee(cells: Array<string | number | boolean | null | undefined>, fill: string | null | undefined, rules: EmployeeRuleSet): EmployeeResolution {
   const rowText = normalizeEmployeeText(cells.map(value => String(value ?? '')).join(' '));
   const nameOwner = Object.entries(rules.aliases).find(([alias]) => alias && rowText.includes(normalizeEmployeeText(alias)))?.[1] ?? null;
   const colorOwner = rules.colorOwners[normalizeColor(fill)] ?? null;
-  if (nameOwner && colorOwner && normalizeEmployeeText(nameOwner) !== normalizeEmployeeText(colorOwner)) return { employee: null, source: 'conflict', requiresReview: true };
   if (nameOwner) return { employee: nameOwner, source: 'name', requiresReview: false };
   if (colorOwner) return { employee: colorOwner, source: 'color', requiresReview: false };
   return { employee: null, source: 'unknown', requiresReview: true };

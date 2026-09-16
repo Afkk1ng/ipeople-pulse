@@ -42,7 +42,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { importGoogleSheet, requestSheetsAccess, type ImportedSale } from "@/lib/google-sheets";
-import { emptyEmployeeRules, type EmployeeRuleSet } from "@/lib/sales-import";
+import { emptyEmployeeRules, normalizeEmployeeText, type EmployeeRuleSet } from "@/lib/sales-import";
 import { calculatePayroll, type PayrollSettings } from "@/lib/payroll";
 import { defaultRepublicPlans, importRepublicPlans, type RepublicPlans } from "@/lib/republic-plans";
 import salesData from "./sales-data.json";
@@ -176,6 +176,15 @@ function createPayrollSettings(plans: RepublicPlans, current: Record<string, Emp
   }));
 }
 
+function ensureEmployeeNameAliases(rules: EmployeeRuleSet, plans: RepublicPlans): EmployeeRuleSet {
+  const aliases = { ...rules.aliases };
+  plans.employees.forEach((employee) => {
+    const canonical = normalizeEmployeeText(employee.name);
+    if (!Object.keys(aliases).some((alias) => normalizeEmployeeText(alias) === canonical)) aliases[canonical] = employee.name;
+  });
+  return { ...rules, aliases };
+}
+
 function MetricCard({
   label,
   value,
@@ -222,7 +231,7 @@ function Dashboard() {
   const [payrollSettings, setPayrollSettings] = useState<Record<string, EmployeePayrollSettings>>(
     () => createPayrollSettings(defaultRepublicPlans),
   );
-  const [employeeRules, setEmployeeRules] = useState<EmployeeRuleSet>(emptyEmployeeRules);
+  const [employeeRules, setEmployeeRules] = useState<EmployeeRuleSet>(() => ensureEmployeeNameAliases(emptyEmployeeRules(), defaultRepublicPlans));
   const [plansStatus, setPlansStatus] = useState<{ state: "idle" | "loading" | "success" | "error"; message: string }>({ state: "idle", message: "" });
   const [dateFrom, setDateFrom] = useState(snapshotBounds.first);
   const [dateTo, setDateTo] = useState(snapshotBounds.last);
@@ -253,10 +262,12 @@ function Dashboard() {
           if (saved.republicPlans?.employees?.length) {
             setRepublicPlans(saved.republicPlans);
             setPayrollSettings(createPayrollSettings(saved.republicPlans, saved.payrollSettings));
+            setEmployeeRules(ensureEmployeeNameAliases(saved.employeeRules ?? emptyEmployeeRules(), saved.republicPlans));
           } else if (saved.payrollSettings) {
             setPayrollSettings(createPayrollSettings(defaultRepublicPlans, saved.payrollSettings));
+            setEmployeeRules(ensureEmployeeNameAliases(saved.employeeRules ?? emptyEmployeeRules(), defaultRepublicPlans));
           }
-          if (saved.employeeRules) setEmployeeRules(saved.employeeRules);
+          else if (saved.employeeRules) setEmployeeRules(ensureEmployeeNameAliases(saved.employeeRules, defaultRepublicPlans));
         }
       }
     } catch {
@@ -319,6 +330,7 @@ function Dashboard() {
         const plans = await importRepublicPlans(token);
         setRepublicPlans(plans);
         setPayrollSettings((current) => createPayrollSettings(plans, current));
+        setEmployeeRules((current) => ensureEmployeeNameAliases(current, plans));
         setPlansStatus({ state: "success", message: "Планы «Республіка» обновлены из Google Sheets." });
       } catch {
         setPlansStatus({ state: "error", message: "Продажи загружены, но планы «Республіка» пока не обновились." });
@@ -345,6 +357,7 @@ function Dashboard() {
       const plans = await importRepublicPlans(token);
       setRepublicPlans(plans);
       setPayrollSettings((current) => createPayrollSettings(plans, current));
+      setEmployeeRules((current) => ensureEmployeeNameAliases(current, plans));
       setPlansStatus({ state: "success", message: "Планы «Республіка» обновлены из исходной таблицы." });
     } catch (error) {
       setPlansStatus({ state: "error", message: error instanceof Error ? error.message : "Не удалось обновить планы." });
@@ -364,6 +377,17 @@ function Dashboard() {
       if (employee) colorOwners[color] = employee;
       else delete colorOwners[color];
       return { ...current, colorOwners };
+    });
+  }
+
+  function setEmployeeAliases(employee: string, value: string) {
+    setEmployeeRules((current) => {
+      const aliases = Object.fromEntries(Object.entries(current.aliases).filter(([, owner]) => owner !== employee));
+      value.split(",").map((alias) => alias.trim()).filter(Boolean).forEach((alias) => {
+        aliases[normalizeEmployeeText(alias)] = employee;
+      });
+      aliases[normalizeEmployeeText(employee)] = employee;
+      return { ...current, aliases };
     });
   }
 
@@ -631,7 +655,7 @@ function Dashboard() {
             <div>
               <p className="panel-kicker">Республіка · мотивация</p>
               <h2 id="payroll-title">Планы и ЗП сотрудников</h2>
-              <p>Ставки перенесены из старого iPeople Plus. Продажи начисляются только после привязки к сотруднику.</p>
+              <p>Ставки перенесены из старого iPeople Plus. Имя в строке продажи важнее цвета; цвет помогает только когда имени нет.</p>
             </div>
             <Button type="button" variant="outline" onClick={syncRepublicPlans} disabled={plansStatus.state === "loading"}>
               <RefreshCw className={plansStatus.state === "loading" ? "animate-spin" : ""} aria-hidden="true" />
@@ -662,6 +686,10 @@ function Dashboard() {
             {republicPlans.employees.map((employee, index) => {
               const settings = payrollSettings[employee.name] ?? createPayrollSettings(republicPlans)[employee.name];
               const payroll = payrollResults[index];
+              const aliases = Object.entries(employeeRules.aliases)
+                .filter(([, owner]) => owner === employee.name)
+                .map(([alias]) => alias)
+                .join(", ");
               return (
                 <article className="payroll-card" key={employee.name}>
                   <div className="payroll-card__head">
@@ -669,6 +697,9 @@ function Dashboard() {
                     <strong>{currency.format(payroll.total)}</strong>
                   </div>
                   <p className="payroll-card__rows">Привязано: {payroll.attributedRows} строк · техника: {payroll.techUnits} шт.</p>
+                  <label className="employee-alias-input">Имя в строке продажи
+                    <Input value={aliases} onChange={(event) => setEmployeeAliases(employee.name, event.target.value)} placeholder="Например: Олексій, Алексей" />
+                  </label>
                   <div className="employee-plan-inputs">
                     <label>План услуг<Input type="number" min="0" value={settings.servicesTarget} onChange={(event) => updatePayrollSetting(employee.name, "servicesTarget", Number(event.target.value))} /></label>
                     <label>План аксес.<Input type="number" min="0" value={settings.accessoriesTarget} onChange={(event) => updatePayrollSetting(employee.name, "accessoriesTarget", Number(event.target.value))} /></label>
@@ -688,7 +719,7 @@ function Dashboard() {
 
           {unassignedColors.length > 0 && (
             <div className="color-mapping">
-              <div><p className="panel-kicker">Привязка цветов</p><h3>Кому принадлежат продажи?</h3><p>Назначьте цвет из таблицы сотруднику один раз. После следующего «Рассчитать» строки будут учтены в его ЗП.</p></div>
+              <div><p className="panel-kicker">Привязка цветов</p><h3>Кому принадлежат продажи без имени?</h3><p>Назначьте цвет один раз только как запасной вариант. Если в строке есть имя сотрудника, цвет игнорируется.</p></div>
               <div className="color-mapping__list">
                 {unassignedColors.map((color) => (
                   <label key={color}>
