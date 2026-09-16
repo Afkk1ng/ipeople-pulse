@@ -1,4 +1,7 @@
-export type SaleCategory = "Техника" | "Аксессуары" | "Услуги" | "Ремонты";
+import type { SaleCategory } from "@/lib/sale-classification";
+import { categoryForSale } from "@/lib/sale-classification";
+
+export type { SaleCategory } from "@/lib/sale-classification";
 
 import { emptyEmployeeRules, resolveEmployee, type EmployeeRuleSet } from "@/lib/sales-import";
 
@@ -58,69 +61,6 @@ declare global {
   }
 }
 
-const SERVICE_WORDS = [
-  "пакет послуг",
-  "послуга",
-  "чистк",
-  "налашту",
-  "перенес",
-  "установк",
-  "istart",
-  "icare",
-  "i care",
-  "icare+",
-  "icare +",
-  "i care +",
-];
-const REPAIR_WORDS = ["ремонт", "repair"];
-const TECHNIQUE_PREFIXES = [
-  "iphone",
-  "phone ",
-  "watch series",
-  "apple watch",
-  "airpods",
-  "apple macbook",
-  "macbook",
-  "apple ipad",
-  "ipad",
-  "apple imac",
-  "imac",
-  "ecoflow",
-  "anker solix",
-  "apple airtag",
-  "airtag",
-  "homepod",
-  "apple tv",
-];
-const ACCESSORY_WORDS = [
-  "case",
-  "glass",
-  "cable",
-  "adapter",
-  "charger",
-  "charging",
-  "earpods",
-  "pencil",
-  "folio",
-  "key ring",
-  "strap",
-  "wire",
-  "screen",
-  "lens",
-  "silicone",
-  "cover",
-  "pitaka",
-  "wiwu",
-  "soneex",
-  "oneex",
-  "proove",
-  "monblan",
-  "перехідник",
-  "кабель",
-  "чохол",
-  "скло",
-  "заряд",
-];
 
 let googleScriptPromise: Promise<void> | null = null;
 
@@ -184,15 +124,6 @@ function fillKey(cell: GoogleCell | undefined) {
   return `${channel(rgb.red)}${channel(rgb.green)}${channel(rgb.blue)}`;
 }
 
-function categoryFor(name: string): SaleCategory {
-  const lowered = name.trim().toLocaleLowerCase("uk");
-  if (REPAIR_WORDS.some((word) => lowered.includes(word))) return "Ремонты";
-  if (SERVICE_WORDS.some((word) => lowered.includes(word))) return "Услуги";
-  if (TECHNIQUE_PREFIXES.some((prefix) => lowered.startsWith(prefix))) return "Техника";
-  if (ACCESSORY_WORDS.some((word) => lowered.includes(word))) return "Аксессуары";
-  return "Техника";
-}
-
 function dateForSheet(raw: unknown, day: number) {
   const match = String(raw ?? "").match(/(\d{2})\.(\d{2})\.(\d{4})/);
   if (match) return `${match[3]}-${match[2]}-${match[1]}`;
@@ -252,7 +183,7 @@ function parseSheet(sheet: GoogleSheet, employeeRules: EmployeeRuleSet): Importe
       day,
       transactionId: `${date}-${String(transactionNo).padStart(2, "0")}`,
       name,
-      category: categoryFor(name),
+      category: categoryForSale(name),
       revenue: Math.round(revenue * 100) / 100,
       employee: employee.employee,
       employeeDetection: employee.source,

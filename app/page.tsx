@@ -10,6 +10,7 @@ import {
   CircleDollarSign,
   History,
   Link2,
+  Lightbulb,
   LoaderCircle,
   PackageCheck,
   RefreshCw,
@@ -79,6 +80,20 @@ type SavedDashboardState = {
   republicPlans?: RepublicPlans;
   payrollSettings?: Record<string, PayrollSettings & { servicesTarget: number; accessoriesTarget: number }>;
   employeeRules?: EmployeeRuleSet;
+  sourceMode?: "snapshot" | "sheets" | "moysklad";
+  myskladSyncedAt?: string;
+};
+
+type MoySkladStatus = {
+  state: "checking" | "connected" | "missing_token" | "unavailable";
+  message: string;
+  checkedAt?: string;
+};
+
+type MoySkladSyncResult = Omit<MoySkladStatus, "state"> & {
+  state: Exclude<MoySkladStatus["state"], "checking">;
+  records: Sale[];
+  truncated?: boolean;
 };
 
 const snapshotRecords = salesData as Sale[];
@@ -227,6 +242,13 @@ function Dashboard() {
   const [sourceTitle, setSourceTitle] = useState("Google Sheets");
   const [importedAt, setImportedAt] = useState("");
   const [history, setHistory] = useState<ImportHistoryEntry[]>([]);
+  const [sourceMode, setSourceMode] = useState<"snapshot" | "sheets" | "moysklad">("snapshot");
+  const [myskladSyncedAt, setMoyskladSyncedAt] = useState("");
+  const [myskladStatus, setMoyskladStatus] = useState<MoySkladStatus>({
+    state: "checking",
+    message: "Проверяю связь с МойСклад…",
+  });
+  const [myskladSyncing, setMoyskladSyncing] = useState(false);
   const [republicPlans, setRepublicPlans] = useState<RepublicPlans>(defaultRepublicPlans);
   const [payrollSettings, setPayrollSettings] = useState<Record<string, EmployeePayrollSettings>>(
     () => createPayrollSettings(defaultRepublicPlans),
@@ -257,6 +279,8 @@ function Dashboard() {
           setSourceTitle(saved.sourceTitle === "Снимок отчёта" ? "Google Sheets" : saved.sourceTitle ?? "Google Sheets");
           setImportedAt(saved.importedAt ?? "");
           setHistory(Array.isArray(saved.history) ? saved.history.slice(0, 8) : []);
+          setSourceMode(saved.sourceMode ?? "sheets");
+          setMoyskladSyncedAt(saved.myskladSyncedAt ?? "");
           setDateFrom(saved.dateFrom && saved.dateFrom >= bounds.first ? saved.dateFrom : bounds.first);
           setDateTo(saved.dateTo && saved.dateTo <= bounds.last ? saved.dateTo : bounds.last);
           if (saved.republicPlans?.employees?.length) {
@@ -290,13 +314,15 @@ function Dashboard() {
       republicPlans,
       payrollSettings,
       employeeRules,
+      sourceMode,
+      myskladSyncedAt,
     };
     try {
       window.localStorage.setItem(storageKey, JSON.stringify(saved));
     } catch {
       setImportStatus({ state: "error", message: "Браузер не смог сохранить историю отчётов." });
     }
-  }, [dateFrom, dateTo, employeeRules, history, importedAt, payrollSettings, records, republicPlans, sheetUrl, sourceTitle, storageReady]);
+  }, [dateFrom, dateTo, employeeRules, history, importedAt, myskladSyncedAt, payrollSettings, records, republicPlans, sheetUrl, sourceMode, sourceTitle, storageReady]);
 
   async function handleSheetImport(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -319,6 +345,7 @@ function Dashboard() {
         records: result.records,
       };
       setRecords(result.records);
+      setSourceMode("sheets");
       setSourceTitle(result.title);
       setImportedAt(loadedAt);
       setHistory((current) => [entry, ...current].slice(0, 8));
@@ -348,6 +375,62 @@ function Dashboard() {
       });
     }
   }
+
+  function mapMoySkladEmployees(rawRecords: Sale[]) {
+    return rawRecords.map((sale) => {
+      if (!sale.employee) return sale;
+      const resolved = resolveEmployee([sale.employee], "none", employeeRules);
+      return resolved.employee
+        ? { ...sale, employee: resolved.employee, employeeDetection: "name" as const }
+        : { ...sale, employee: null, employeeDetection: "unknown" as const };
+    });
+  }
+
+  async function refreshMoySklad({ sync = false, silent = false }: { sync?: boolean; silent?: boolean } = {}) {
+    if (sync) setMoyskladSyncing(true);
+    try {
+      const params = sync ? `?mode=sync&from=${encodeURIComponent(dateFrom)}&to=${encodeURIComponent(dateTo)}` : "";
+      const response = await fetch(`/api/moysklad${params}`, { credentials: "same-origin", cache: "no-store" });
+      const result = await response.json().catch(() => null) as MoySkladStatus | MoySkladSyncResult | null;
+      if (!response.ok || !result) throw new Error("Не удалось проверить связь с МойСклад.");
+      setMoyskladStatus({ state: result.state, message: result.message, checkedAt: result.checkedAt });
+      if (sync && result.state === "connected" && "records" in result) {
+        const imported = mapMoySkladEmployees(result.records);
+        setRecords(imported);
+        setSourceMode("moysklad");
+        setSourceTitle("МойСклад · Республіка");
+        setImportedAt(result.checkedAt ?? new Date().toISOString());
+        setMoyskladSyncedAt(result.checkedAt ?? new Date().toISOString());
+        setCategory("Все");
+        setQuery("");
+        if (!silent) {
+          setImportStatus({
+            state: "success",
+            message: result.truncated
+              ? `МойСклад обновлён, но большой период был ограничен. Уточните даты.`
+              : `МойСклад обновлён: ${imported.length} позиций за выбранный период.`,
+          });
+        }
+      }
+    } catch (error) {
+      setMoyskladStatus({
+        state: "unavailable",
+        message: error instanceof Error ? error.message : "МойСклад сейчас недоступен.",
+      });
+      if (!silent) setImportStatus({ state: "error", message: "Данные не обновились: сохранён последний успешный расчёт." });
+    } finally {
+      if (sync) setMoyskladSyncing(false);
+    }
+  }
+
+  useEffect(() => {
+    void refreshMoySklad({ sync: true, silent: true });
+    const timer = window.setInterval(() => void refreshMoySklad({ sync: true, silent: true }), 60_000);
+    return () => window.clearInterval(timer);
+  // The selected report range defines the live data window; employee aliases
+  // are applied on the next automatic minute-by-minute refresh.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dateFrom, dateTo]);
 
   async function syncRepublicPlans() {
     setPlansStatus({ state: "loading", message: "Обновляю планы «Республіка»…" });
@@ -534,6 +617,17 @@ function Dashboard() {
         </div>
 
         <div className="topbar-importer">
+          <button
+            className={`source-indicator source-indicator--${myskladStatus.state}`}
+            type="button"
+            onClick={() => void refreshMoySklad({ sync: true })}
+            disabled={myskladSyncing}
+            title={myskladStatus.message}
+          >
+            {myskladSyncing ? <LoaderCircle className="animate-spin" aria-hidden="true" /> : <Lightbulb aria-hidden="true" />}
+            <span><b>МойСклад</b><small>{myskladStatus.state === "connected" ? "данные обновляются" : myskladStatus.state === "checking" ? "проверяю связь" : "нет связи"}</small></span>
+            <em>{myskladSyncedAt ? `обновлено ${dateTime.format(new Date(myskladSyncedAt))}` : "проверить"}</em>
+          </button>
           <form className="topbar-importer__form" onSubmit={handleSheetImport}>
             <label>
               <span className="sr-only">Ссылка на Google-таблицу</span>
@@ -543,7 +637,7 @@ function Dashboard() {
                 required
                 value={sheetUrl}
                 onChange={(event) => setSheetUrl(event.target.value)}
-                placeholder="Вставьте ссылку на Google-отчёт"
+                placeholder="Google Sheets — резервная сверка"
               />
             </label>
             <Button type="submit" disabled={importStatus.state === "loading"}>
@@ -552,11 +646,11 @@ function Dashboard() {
               ) : (
                 <BarChart3 aria-hidden="true" />
               )}
-              Рассчитать
+              Загрузить
             </Button>
           </form>
           <div className="topbar-importer__meta">
-            <span title={sourceTitle}>{sourceTitle} · только чтение</span>
+            <span title={sourceTitle}>{sourceMode === "moysklad" ? "МойСклад — основной источник · Google Sheets по желанию" : `${sourceTitle} · резервный источник`}</span>
             {history.length > 0 && (
               <label className="history-picker">
                 <History aria-hidden="true" />
