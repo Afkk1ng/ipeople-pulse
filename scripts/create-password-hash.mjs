@@ -1,4 +1,4 @@
-import { pbkdf2Sync, randomBytes } from 'node:crypto';
+import { createHmac, randomBytes } from 'node:crypto';
 import { createInterface } from 'node:readline/promises';
 
 const prompt = createInterface({ input: process.stdin, output: process.stdout, terminal: true });
@@ -10,7 +10,7 @@ if (password.length < 14) {
   process.exit(1);
 }
 
-const iterations = 210_000;
-const salt = randomBytes(16);
-const digest = pbkdf2Sync(password, salt, iterations, 32, 'sha256');
-console.log(`pbkdf2-sha256$${iterations}$${salt.toString('base64url')}$${digest.toString('base64url')}`);
+const pepper = randomBytes(48).toString('base64url');
+const digest = createHmac('sha256', pepper).update(password).digest('base64url');
+console.log(`AUTH_PASSWORD_HASH=hmac-sha256$${digest}`);
+console.log(`AUTH_PASSWORD_PEPPER=${pepper}`);

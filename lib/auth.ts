@@ -3,6 +3,7 @@ import { env } from 'cloudflare:workers';
 type RuntimeEnv = {
   AUTH_USERNAME?: string;
   AUTH_PASSWORD_HASH?: string;
+  AUTH_PASSWORD_PEPPER?: string;
   SESSION_SECRET?: string;
 };
 
@@ -62,6 +63,12 @@ export async function verifyPassword(username: string, password: string) {
   const config = runtime();
   if (!config.AUTH_USERNAME || !config.AUTH_PASSWORD_HASH || !config.SESSION_SECRET) return false;
   const [scheme, iterationText, saltText, digestText] = config.AUTH_PASSWORD_HASH.split('$');
+  if (scheme === 'hmac-sha256') {
+    const expected = fromBase64Url(iterationText ?? '');
+    if (!config.AUTH_PASSWORD_PEPPER || !expected) return false;
+    const actual = await hmac(password, config.AUTH_PASSWORD_PEPPER);
+    return equalBytes(text.encode(username), text.encode(config.AUTH_USERNAME)) && equalBytes(actual, expected);
+  }
   const iterations = Number(iterationText);
   const salt = fromBase64Url(saltText ?? '');
   const expected = fromBase64Url(digestText ?? '');
