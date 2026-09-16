@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   BarChart3,
+  BadgeDollarSign,
   Boxes,
   CalendarDays,
   CheckCircle2,
@@ -11,8 +12,10 @@ import {
   Link2,
   LoaderCircle,
   PackageCheck,
+  RefreshCw,
   Search,
   Sparkles,
+  UsersRound,
   Wrench,
 } from "lucide-react";
 import {
@@ -39,6 +42,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { importGoogleSheet, requestSheetsAccess, type ImportedSale } from "@/lib/google-sheets";
+import { emptyEmployeeRules, type EmployeeRuleSet } from "@/lib/sales-import";
+import { calculatePayroll, type PayrollSettings } from "@/lib/payroll";
+import { defaultRepublicPlans, importRepublicPlans, type RepublicPlans } from "@/lib/republic-plans";
 import salesData from "./sales-data.json";
 
 type Category = "Техника" | "Аксессуары" | "Услуги";
@@ -70,6 +76,9 @@ type SavedDashboardState = {
   history: ImportHistoryEntry[];
   dateFrom: string;
   dateTo: string;
+  republicPlans?: RepublicPlans;
+  payrollSettings?: Record<string, PayrollSettings & { servicesTarget: number; accessoriesTarget: number }>;
+  employeeRules?: EmployeeRuleSet;
 };
 
 const snapshotRecords = salesData as Sale[];
@@ -153,6 +162,20 @@ function aggregateProducts(data: Sale[]) {
   return [...products.values()];
 }
 
+type EmployeePayrollSettings = PayrollSettings & { servicesTarget: number; accessoriesTarget: number };
+
+function createPayrollSettings(plans: RepublicPlans, current: Record<string, EmployeePayrollSettings> = {}) {
+  return Object.fromEntries(plans.employees.map((employee) => {
+    const previous = current[employee.name];
+    return [employee.name, {
+      dailyRate: previous?.dailyRate ?? 500,
+      workDays: previous?.workDays ?? 0,
+      servicesTarget: previous?.servicesTarget ?? Math.round(plans.servicesTarget * employee.servicesShare),
+      accessoriesTarget: previous?.accessoriesTarget ?? Math.round(plans.accessoriesTarget * employee.accessoriesShare),
+    }];
+  }));
+}
+
 function MetricCard({
   label,
   value,
@@ -195,6 +218,12 @@ function Dashboard() {
   const [sourceTitle, setSourceTitle] = useState("Google Sheets");
   const [importedAt, setImportedAt] = useState("");
   const [history, setHistory] = useState<ImportHistoryEntry[]>([]);
+  const [republicPlans, setRepublicPlans] = useState<RepublicPlans>(defaultRepublicPlans);
+  const [payrollSettings, setPayrollSettings] = useState<Record<string, EmployeePayrollSettings>>(
+    () => createPayrollSettings(defaultRepublicPlans),
+  );
+  const [employeeRules, setEmployeeRules] = useState<EmployeeRuleSet>(emptyEmployeeRules);
+  const [plansStatus, setPlansStatus] = useState<{ state: "idle" | "loading" | "success" | "error"; message: string }>({ state: "idle", message: "" });
   const [dateFrom, setDateFrom] = useState(snapshotBounds.first);
   const [dateTo, setDateTo] = useState(snapshotBounds.last);
   const [storageReady, setStorageReady] = useState(false);
@@ -221,6 +250,13 @@ function Dashboard() {
           setHistory(Array.isArray(saved.history) ? saved.history.slice(0, 8) : []);
           setDateFrom(saved.dateFrom && saved.dateFrom >= bounds.first ? saved.dateFrom : bounds.first);
           setDateTo(saved.dateTo && saved.dateTo <= bounds.last ? saved.dateTo : bounds.last);
+          if (saved.republicPlans?.employees?.length) {
+            setRepublicPlans(saved.republicPlans);
+            setPayrollSettings(createPayrollSettings(saved.republicPlans, saved.payrollSettings));
+          } else if (saved.payrollSettings) {
+            setPayrollSettings(createPayrollSettings(defaultRepublicPlans, saved.payrollSettings));
+          }
+          if (saved.employeeRules) setEmployeeRules(saved.employeeRules);
         }
       }
     } catch {
@@ -240,13 +276,16 @@ function Dashboard() {
       history,
       dateFrom,
       dateTo,
+      republicPlans,
+      payrollSettings,
+      employeeRules,
     };
     try {
       window.localStorage.setItem(storageKey, JSON.stringify(saved));
     } catch {
       setImportStatus({ state: "error", message: "Браузер не смог сохранить историю отчётов." });
     }
-  }, [dateFrom, dateTo, history, importedAt, records, sheetUrl, sourceTitle, storageReady]);
+  }, [dateFrom, dateTo, employeeRules, history, importedAt, payrollSettings, records, republicPlans, sheetUrl, sourceTitle, storageReady]);
 
   async function handleSheetImport(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -258,7 +297,7 @@ function Dashboard() {
       }
       const token = accessToken || (await requestSheetsAccess(googleClientId));
       if (!accessToken) setAccessToken(token);
-      const result = await importGoogleSheet(sheetUrl, token);
+      const result = await importGoogleSheet(sheetUrl, token, employeeRules);
       const bounds = dateBounds(result.records);
       const loadedAt = new Date().toISOString();
       const entry: ImportHistoryEntry = {
@@ -276,6 +315,14 @@ function Dashboard() {
       setDateTo(bounds.last);
       setCategory("Все");
       setQuery("");
+      try {
+        const plans = await importRepublicPlans(token);
+        setRepublicPlans(plans);
+        setPayrollSettings((current) => createPayrollSettings(plans, current));
+        setPlansStatus({ state: "success", message: "Планы «Республіка» обновлены из Google Sheets." });
+      } catch {
+        setPlansStatus({ state: "error", message: "Продажи загружены, но планы «Республіка» пока не обновились." });
+      }
       setImportStatus({
         state: "success",
         message: result.requiresReview
@@ -288,6 +335,36 @@ function Dashboard() {
         message: error instanceof Error ? error.message : "Не удалось прочитать отчёт.",
       });
     }
+  }
+
+  async function syncRepublicPlans() {
+    setPlansStatus({ state: "loading", message: "Обновляю планы «Республіка»…" });
+    try {
+      const token = accessToken || (await requestSheetsAccess(googleClientId));
+      if (!accessToken) setAccessToken(token);
+      const plans = await importRepublicPlans(token);
+      setRepublicPlans(plans);
+      setPayrollSettings((current) => createPayrollSettings(plans, current));
+      setPlansStatus({ state: "success", message: "Планы «Республіка» обновлены из исходной таблицы." });
+    } catch (error) {
+      setPlansStatus({ state: "error", message: error instanceof Error ? error.message : "Не удалось обновить планы." });
+    }
+  }
+
+  function updatePayrollSetting(employee: string, field: keyof EmployeePayrollSettings, value: number) {
+    setPayrollSettings((current) => ({
+      ...current,
+      [employee]: { ...current[employee], [field]: Math.max(0, Number.isFinite(value) ? value : 0) },
+    }));
+  }
+
+  function assignColor(color: string, employee: string) {
+    setEmployeeRules((current) => {
+      const colorOwners = { ...current.colorOwners };
+      if (employee) colorOwners[color] = employee;
+      else delete colorOwners[color];
+      return { ...current, colorOwners };
+    });
   }
 
   function restoreHistory(entryId: string) {
@@ -346,6 +423,25 @@ function Dashboard() {
       accessoriesPerDevice: technique ? accessories / technique : 0,
     };
   }, [periodRecords]);
+
+  const payrollResults = useMemo(() => republicPlans.employees.map((employee) => {
+    const settings = payrollSettings[employee.name] ?? {
+      dailyRate: 500,
+      workDays: 0,
+      servicesTarget: Math.round(republicPlans.servicesTarget * employee.servicesShare),
+      accessoriesTarget: Math.round(republicPlans.accessoriesTarget * employee.accessoriesShare),
+    };
+    return calculatePayroll(employee.name, periodRecords, {
+      services: settings.servicesTarget,
+      accessories: settings.accessoriesTarget,
+    }, settings);
+  }), [payrollSettings, periodRecords, republicPlans]);
+
+  const unassignedColors = useMemo(() => [...new Set(
+    periodRecords
+      .filter((sale) => !sale.employee && sale.sourceColor && sale.sourceColor !== "none")
+      .map((sale) => sale.sourceColor),
+  )].sort(), [periodRecords]);
 
   const dailyData = useMemo(() => {
     const days = new Map<string, number>();
@@ -529,6 +625,85 @@ function Dashboard() {
             tone="mint"
           />
         </div>
+
+        <section className="payroll-panel" aria-labelledby="payroll-title">
+          <div className="payroll-panel__heading">
+            <div>
+              <p className="panel-kicker">Республіка · мотивация</p>
+              <h2 id="payroll-title">Планы и ЗП сотрудников</h2>
+              <p>Ставки перенесены из старого iPeople Plus. Продажи начисляются только после привязки к сотруднику.</p>
+            </div>
+            <Button type="button" variant="outline" onClick={syncRepublicPlans} disabled={plansStatus.state === "loading"}>
+              <RefreshCw className={plansStatus.state === "loading" ? "animate-spin" : ""} aria-hidden="true" />
+              Обновить планы
+            </Button>
+          </div>
+
+          <div className="store-plan-grid">
+            <label>
+              <span>План услуг · магазин</span>
+              <Input type="number" min="0" value={republicPlans.servicesTarget} onChange={(event) => setRepublicPlans((current) => ({ ...current, servicesTarget: Number(event.target.value) || 0 }))} />
+              <small>₴ · источник: лист «Республіка»</small>
+            </label>
+            <label>
+              <span>План аксессуаров · магазин</span>
+              <Input type="number" min="0" value={republicPlans.accessoriesTarget} onChange={(event) => setRepublicPlans((current) => ({ ...current, accessoriesTarget: Number(event.target.value) || 0 }))} />
+              <small>₴ · можно изменить вручную</small>
+            </label>
+            <div className="team-pay-total">
+              <BadgeDollarSign aria-hidden="true" />
+              <span>ЗП команды по текущим данным</span>
+              <strong>{currency.format(payrollResults.reduce((sum, item) => sum + item.total, 0))}</strong>
+            </div>
+          </div>
+          {plansStatus.message && <p className={`plans-status plans-status--${plansStatus.state}`} role="status">{plansStatus.message}</p>}
+
+          <div className="payroll-cards">
+            {republicPlans.employees.map((employee, index) => {
+              const settings = payrollSettings[employee.name] ?? createPayrollSettings(republicPlans)[employee.name];
+              const payroll = payrollResults[index];
+              return (
+                <article className="payroll-card" key={employee.name}>
+                  <div className="payroll-card__head">
+                    <div><UsersRound aria-hidden="true" /><h3>{employee.name}</h3></div>
+                    <strong>{currency.format(payroll.total)}</strong>
+                  </div>
+                  <p className="payroll-card__rows">Привязано: {payroll.attributedRows} строк · техника: {payroll.techUnits} шт.</p>
+                  <div className="employee-plan-inputs">
+                    <label>План услуг<Input type="number" min="0" value={settings.servicesTarget} onChange={(event) => updatePayrollSetting(employee.name, "servicesTarget", Number(event.target.value))} /></label>
+                    <label>План аксес.<Input type="number" min="0" value={settings.accessoriesTarget} onChange={(event) => updatePayrollSetting(employee.name, "accessoriesTarget", Number(event.target.value))} /></label>
+                    <label>Ставка/день<Input type="number" min="0" value={settings.dailyRate} onChange={(event) => updatePayrollSetting(employee.name, "dailyRate", Number(event.target.value))} /></label>
+                    <label>Смены<Input type="number" min="0" value={settings.workDays} onChange={(event) => updatePayrollSetting(employee.name, "workDays", Number(event.target.value))} /></label>
+                  </div>
+                  <div className="payroll-breakdown">
+                    <span>Ставка <b>{currency.format(payroll.basePay)}</b></span>
+                    <span>Техника <b>{currency.format(payroll.techPay)}</b></span>
+                    <span>Аксессуары {Math.round(payroll.accessoriesProgress * 100)}% <b>{currency.format(payroll.accessoriesPay)}</b></span>
+                    <span>Услуги {Math.round(payroll.serviceProgress * 100)}% <b>{currency.format(payroll.servicesPay)}</b></span>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+
+          {unassignedColors.length > 0 && (
+            <div className="color-mapping">
+              <div><p className="panel-kicker">Привязка цветов</p><h3>Кому принадлежат продажи?</h3><p>Назначьте цвет из таблицы сотруднику один раз. После следующего «Рассчитать» строки будут учтены в его ЗП.</p></div>
+              <div className="color-mapping__list">
+                {unassignedColors.map((color) => (
+                  <label key={color}>
+                    <i style={{ backgroundColor: `#${color}` }} aria-hidden="true" />
+                    <span>#{color}</span>
+                    <select value={employeeRules.colorOwners[color] ?? ""} onChange={(event) => assignColor(color, event.target.value)}>
+                      <option value="">Не назначен</option>
+                      {republicPlans.employees.map((employee) => <option key={employee.name} value={employee.name}>{employee.name}</option>)}
+                    </select>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
+        </section>
 
         <section className="filter-row" aria-label="Фильтры отчёта">
           <Tabs value={category} onValueChange={(value) => setCategory(value as CategoryFilter)}>
