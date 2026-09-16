@@ -1,4 +1,5 @@
 import { env } from 'cloudflare:workers';
+import { requireApiAuth } from '@/lib/auth';
 
 export const runtime = 'edge';
 
@@ -9,9 +10,7 @@ type QueueState = { queue: string[]; frozenEmployees: string[]; approachCounts: 
 const defaultTeam = ['Макс', 'Алина', 'Алексей', 'Коля', 'Ксюша', 'Ира'];
 const today = () => new Date().toISOString().slice(0, 10);
 const safeHtml = (value: string) => value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-const corsHeaders = { 'Access-Control-Allow-Origin': 'https://afkk1ng.github.io', 'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type', Vary: 'Origin' };
-const json = (body: unknown, status = 200) => Response.json(body, { status, headers: { 'Cache-Control': 'no-store', ...corsHeaders } });
-export function OPTIONS() { return new Response(null, { status: 204, headers: corsHeaders }); }
+const json = (body: unknown, status = 200) => Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } });
 
 async function readQueueState(database: D1Database): Promise<QueueState> {
   const [entries, marks, setting] = await database.batch([
@@ -38,13 +37,15 @@ async function writeQueueState(database: D1Database, queue: string[], frozenEmpl
   await database.batch(statements);
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const denied = await requireApiAuth(request); if (denied) return denied;
   const runtime = env as unknown as RuntimeEnv;
   try { return json(await readQueueState(runtime.DB)); }
   catch { return json({ queue: defaultTeam, frozenEmployees: [], approachCounts: {}, notificationsEnabled: true }); }
 }
 
 export async function PUT(request: Request) {
+  const denied = await requireApiAuth(request); if (denied) return denied;
   let body: { queue?: unknown; notificationsEnabled?: unknown; frozenEmployees?: unknown };
   try { body = await request.json(); } catch { return json({ error: 'Некоректна черга.' }, 400); }
   const queue = Array.isArray(body.queue) ? body.queue.map(item => typeof item === 'string' ? item.trim() : '').filter(Boolean).slice(0, 30) : [];
@@ -59,6 +60,7 @@ export async function PUT(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const denied = await requireApiAuth(request); if (denied) return denied;
   let body: { employee?: unknown; action?: unknown };
   try { body = await request.json(); } catch { return json({ error: 'Некоректна відмітка.' }, 400); }
   const employee = typeof body.employee === 'string' ? body.employee.trim() : '';

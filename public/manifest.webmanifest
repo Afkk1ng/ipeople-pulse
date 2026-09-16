@@ -1,11 +1,11 @@
 {
-  "name": "iPeople PULSE — продажі та зарплата",
-  "short_name": "iPeople PULSE",
-  "description": "Щоденний калькулятор зарплати та мотивації команди iPeople.",
+  "name": "iPeople Plus — аналітика продажів",
+  "short_name": "iPeople Plus",
+  "description": "Закрита аналітика продажів, послуг та зарплати iPeople.",
   "display": "standalone",
   "start_url": "./",
-  "background_color": "#071226",
-  "theme_color": "#09162b",
+  "background_color": "#f3f6f8",
+  "theme_color": "#10243a",
   "icons": [
     {
       "src": "ipeople-pulse-icon-v2.png",

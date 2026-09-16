@@ -1,0 +1,1325 @@
+[
+  {
+    "id": "1-5",
+    "date": "2026-09-01",
+    "day": 1,
+    "transactionId": "2026-09-01-01",
+    "name": "AirPods 4 with Active Noise Cancellation (MXP93)",
+    "category": "Техника",
+    "revenue": 9000.0
+  },
+  {
+    "id": "1-6",
+    "date": "2026-09-01",
+    "day": 1,
+    "transactionId": "2026-09-01-01",
+    "name": "Silicone Case for AirPods 4, Blue Cobalt",
+    "category": "Аксессуары",
+    "revenue": 400.0
+  },
+  {
+    "id": "1-7",
+    "date": "2026-09-01",
+    "day": 1,
+    "transactionId": "2026-09-01-01",
+    "name": "iPhone 17 Pro Max 256GB Deep Blue (MFYP4)",
+    "category": "Техника",
+    "revenue": 64000.0
+  },
+  {
+    "id": "1-8",
+    "date": "2026-09-01",
+    "day": 1,
+    "transactionId": "2026-09-01-01",
+    "name": "Soneex Pro 2.5D Anti Peep 0.26mm Mesh + Anti Static for iPhone 16 Pro Max, Black",
+    "category": "Аксессуары",
+    "revenue": 1500.0
+  },
+  {
+    "id": "1-9",
+    "date": "2026-09-01",
+    "day": 1,
+    "transactionId": "2026-09-01-01",
+    "name": "AirPods Pro 3 (MFHP4)",
+    "category": "Техника",
+    "revenue": 11000.0
+  },
+  {
+    "id": "1-10",
+    "date": "2026-09-01",
+    "day": 1,
+    "transactionId": "2026-09-01-01",
+    "name": "Silicone Case for AirPods Pro 3, Dark Green",
+    "category": "Аксессуары",
+    "revenue": 400.0
+  },
+  {
+    "id": "1-11",
+    "date": "2026-09-01",
+    "day": 1,
+    "transactionId": "2026-09-01-01",
+    "name": "Apple AirTag Silicone Key Ring, Light Blue (HС)",
+    "category": "Техника",
+    "revenue": 500.0
+  },
+  {
+    "id": "1-12",
+    "date": "2026-09-01",
+    "day": 1,
+    "transactionId": "2026-09-01-01",
+    "name": "ECOFLOW DELTA 3 Classic (EFDELTA3C-EU-CBox-L)",
+    "category": "Техника",
+    "revenue": 29000.0
+  },
+  {
+    "id": "1-13",
+    "date": "2026-09-01",
+    "day": 1,
+    "transactionId": "2026-09-01-01",
+    "name": "iPhone 17 Pro Max 512GB Deep Blue (MFYU4)",
+    "category": "Техника",
+    "revenue": 75500.0
+  },
+  {
+    "id": "1-14",
+    "date": "2026-09-01",
+    "day": 1,
+    "transactionId": "2026-09-01-01",
+    "name": "Пакет послуг iStart (iPhone, 2 роки)",
+    "category": "Услуги",
+    "revenue": 7550.0
+  },
+  {
+    "id": "1-15",
+    "date": "2026-09-01",
+    "day": 1,
+    "transactionId": "2026-09-01-01",
+    "name": "Apple EarPods USB-C (MTJY3)",
+    "category": "Аксессуары",
+    "revenue": 1000.0
+  },
+  {
+    "id": "1-16",
+    "date": "2026-09-01",
+    "day": 1,
+    "transactionId": "2026-09-01-01",
+    "name": "AirPods Pro 3 (MFHP4)",
+    "category": "Техника",
+    "revenue": 10500.0
+  },
+  {
+    "id": "1-17",
+    "date": "2026-09-01",
+    "day": 1,
+    "transactionId": "2026-09-01-01",
+    "name": "Пакет послуг iStart (AirPods)",
+    "category": "Услуги",
+    "revenue": 1050.0
+  },
+  {
+    "id": "1-18",
+    "date": "2026-09-01",
+    "day": 1,
+    "transactionId": "2026-09-01-01",
+    "name": "Перехідник на ЗП для Англійської вилки (UK, ZP)",
+    "category": "Аксессуары",
+    "revenue": 350.0
+  },
+  {
+    "id": "1-19",
+    "date": "2026-09-01",
+    "day": 1,
+    "transactionId": "2026-09-01-01",
+    "name": "Soneex Pro 2.5D Full Screen 0.26mm Mesh + Anti Static for iPhone 16 Pro , Black",
+    "category": "Аксессуары",
+    "revenue": 1500.0
+  },
+  {
+    "id": "1-20",
+    "date": "2026-09-01",
+    "day": 1,
+    "transactionId": "2026-09-01-01",
+    "name": "Full Cover 9D Tempered Glass for iPhone 16 Pro Max",
+    "category": "Аксессуары",
+    "revenue": 1000.0
+  },
+  {
+    "id": "2-5",
+    "date": "2026-09-02",
+    "day": 2,
+    "transactionId": "2026-09-02-01",
+    "name": "iPhone 17 Pro Max 256GB Deep Blue (MFYP4)",
+    "category": "Техника",
+    "revenue": 64000.0
+  },
+  {
+    "id": "2-6",
+    "date": "2026-09-02",
+    "day": 2,
+    "transactionId": "2026-09-02-01",
+    "name": "Proove Pocket GaN 45W (Type-C + USB), White (WCPG45110002)",
+    "category": "Аксессуары",
+    "revenue": 1400.0
+  },
+  {
+    "id": "2-7",
+    "date": "2026-09-02",
+    "day": 2,
+    "transactionId": "2026-09-02-01",
+    "name": "Apple Silicone Case with MagSafe + Sensor Button for iPhone 17 Pro Max, Black",
+    "category": "Аксессуары",
+    "revenue": 1300.0
+  },
+  {
+    "id": "2-8",
+    "date": "2026-09-02",
+    "day": 2,
+    "transactionId": "2026-09-02-01",
+    "name": "Apple Silicone Case with MagSafe for iPhone 16 Pro Max, Aquamarine (HC)",
+    "category": "Аксессуары",
+    "revenue": 1100.0
+  },
+  {
+    "id": "2-9",
+    "date": "2026-09-02",
+    "day": 2,
+    "transactionId": "2026-09-02-01",
+    "name": "iPhone 17 256GB White (MG6K4)",
+    "category": "Техника",
+    "revenue": 44800.0
+  },
+  {
+    "id": "2-10",
+    "date": "2026-09-02",
+    "day": 2,
+    "transactionId": "2026-09-02-01",
+    "name": "Proove Pure GaN 30W (Type-C), White",
+    "category": "Аксессуары",
+    "revenue": 800.0
+  },
+  {
+    "id": "2-11",
+    "date": "2026-09-02",
+    "day": 2,
+    "transactionId": "2026-09-02-01",
+    "name": "Пакет послуг iStart (iPhone, 2 роки)",
+    "category": "Услуги",
+    "revenue": 4480.0
+  },
+  {
+    "id": "2-12",
+    "date": "2026-09-02",
+    "day": 2,
+    "transactionId": "2026-09-02-01",
+    "name": "Apple Silicone Case with MagSafe + Sensor Button for iPhone 17, Vanilla (HC)",
+    "category": "Аксессуары",
+    "revenue": 1100.0
+  },
+  {
+    "id": "2-13",
+    "date": "2026-09-02",
+    "day": 2,
+    "transactionId": "2026-09-02-01",
+    "name": "Apple MacBook Neo 512GB Silver (MHFC4)",
+    "category": "Техника",
+    "revenue": 43000.0
+  },
+  {
+    "id": "2-14",
+    "date": "2026-09-02",
+    "day": 2,
+    "transactionId": "2026-09-02-01",
+    "name": "Пакет послуг iStart (iMac, 2 роки)",
+    "category": "Услуги",
+    "revenue": 4300.0
+  },
+  {
+    "id": "2-15",
+    "date": "2026-09-02",
+    "day": 2,
+    "transactionId": "2026-09-02-01",
+    "name": "Apple Magic Mouse USB‑C (White) (2024) (MXK53)",
+    "category": "Техника",
+    "revenue": 4500.0
+  },
+  {
+    "id": "2-16",
+    "date": "2026-09-02",
+    "day": 2,
+    "transactionId": "2026-09-02-01",
+    "name": "Laut Huex Case for MacBook Neo, Pink (L_MBN_HX_P)",
+    "category": "Аксессуары",
+    "revenue": 1600.0
+  },
+  {
+    "id": "2-17",
+    "date": "2026-09-02",
+    "day": 2,
+    "transactionId": "2026-09-02-01",
+    "name": "Apple AirTag 1 Pack 2Gen (MFE94)",
+    "category": "Техника",
+    "revenue": 2200.0
+  },
+  {
+    "id": "2-18",
+    "date": "2026-09-02",
+    "day": 2,
+    "transactionId": "2026-09-02-01",
+    "name": "Apple AirTag Leather Key Ring, Grey (HC)",
+    "category": "Техника",
+    "revenue": 500.0
+  },
+  {
+    "id": "2-20",
+    "date": "2026-09-02",
+    "day": 2,
+    "transactionId": "2026-09-02-02",
+    "name": "ZK 2.5D Silk Printing Full Screen Receiver AntiDust HD Glass+ Anti Static for iPhone 15",
+    "category": "Аксессуары",
+    "revenue": 1500.0
+  },
+  {
+    "id": "2-21",
+    "date": "2026-09-02",
+    "day": 2,
+    "transactionId": "2026-09-02-02",
+    "name": "Proove Pure GaN 30W (Type-C), Black",
+    "category": "Аксессуары",
+    "revenue": 1000.0
+  },
+  {
+    "id": "2-22",
+    "date": "2026-09-02",
+    "day": 2,
+    "transactionId": "2026-09-02-02",
+    "name": "Apple USB C Woven Charge Cable 60w 1m (MQKJ3)",
+    "category": "Аксессуары",
+    "revenue": 1200.0
+  },
+  {
+    "id": "2-23",
+    "date": "2026-09-02",
+    "day": 2,
+    "transactionId": "2026-09-02-02",
+    "name": "Apple Magic Keyboard for iPad Air 11\" (M3) Black (MGYX4) (2025)",
+    "category": "Техника",
+    "revenue": 14000.0
+  },
+  {
+    "id": "2-24",
+    "date": "2026-09-02",
+    "day": 2,
+    "transactionId": "2026-09-02-02",
+    "name": "Apple Watch Magnetic Charging Cable, 1m (MKLG2)/(MX2E2)",
+    "category": "Техника",
+    "revenue": 1500.0
+  },
+  {
+    "id": "2-25",
+    "date": "2026-09-02",
+    "day": 2,
+    "transactionId": "2026-09-02-02",
+    "name": "iPhone 17 Pro 256GB Deep Blue (MG8J4)",
+    "category": "Техника",
+    "revenue": 58800.0
+  },
+  {
+    "id": "2-26",
+    "date": "2026-09-02",
+    "day": 2,
+    "transactionId": "2026-09-02-02",
+    "name": "Apple Silicone Case with MagSafe + Sensor Button for iPhone 17 Pro, Black (HC)",
+    "category": "Аксессуары",
+    "revenue": 1300.0
+  },
+  {
+    "id": "2-27",
+    "date": "2026-09-02",
+    "day": 2,
+    "transactionId": "2026-09-02-02",
+    "name": "Пакет послуг iStart (iPhone, 1 рік)",
+    "category": "Услуги",
+    "revenue": 2940.0
+  },
+  {
+    "id": "3-6",
+    "date": "2026-09-03",
+    "day": 3,
+    "transactionId": "2026-09-03-01",
+    "name": "Laut Huex Folio with Pencil Slot for iPad Pro 11\" M4/M5 (2024-2025), Green (L_IPP24S_HF_GN)",
+    "category": "Аксессуары",
+    "revenue": 1800.0
+  },
+  {
+    "id": "3-7",
+    "date": "2026-09-03",
+    "day": 3,
+    "transactionId": "2026-09-03-01",
+    "name": "AirPods 4 with Active Noise Cancellation (MXP93)",
+    "category": "Техника",
+    "revenue": 9000.0
+  },
+  {
+    "id": "3-8",
+    "date": "2026-09-03",
+    "day": 3,
+    "transactionId": "2026-09-03-01",
+    "name": "Silicone Case New for AirPods 4, Gray",
+    "category": "Аксессуары",
+    "revenue": 400.0
+  },
+  {
+    "id": "3-9",
+    "date": "2026-09-03",
+    "day": 3,
+    "transactionId": "2026-09-03-01",
+    "name": "WIWU Hard Shell Series for MacBook Pro 14\" [2021-2026], Black-Matte",
+    "category": "Аксессуары",
+    "revenue": 1500.0
+  },
+  {
+    "id": "4-5",
+    "date": "2026-09-04",
+    "day": 4,
+    "transactionId": "2026-09-04-01",
+    "name": "iLera DeLuxe FullCover Glass for iPhone 14 Pro",
+    "category": "Аксессуары",
+    "revenue": 1500.0
+  },
+  {
+    "id": "4-6",
+    "date": "2026-09-04",
+    "day": 4,
+    "transactionId": "2026-09-04-01",
+    "name": "Комплексна чистка пристрою (окрім навушників)",
+    "category": "Услуги",
+    "revenue": 500.0
+  },
+  {
+    "id": "4-7",
+    "date": "2026-09-04",
+    "day": 4,
+    "transactionId": "2026-09-04-01",
+    "name": "Apple EarPods USB-C (MTJY3)",
+    "category": "Аксессуары",
+    "revenue": 1200.0
+  },
+  {
+    "id": "4-8",
+    "date": "2026-09-04",
+    "day": 4,
+    "transactionId": "2026-09-04-01",
+    "name": "51055 Пакет послуг iStart Watch (series 9 / 10 / Ultra / 2 роки)",
+    "category": "Услуги",
+    "revenue": 2000.0
+  },
+  {
+    "id": "4-9",
+    "date": "2026-09-04",
+    "day": 4,
+    "transactionId": "2026-09-04-01",
+    "name": "Watch Series 11 GPS, 42mm Jet Black Aluminum Case with Black Sport Band (S/M) (MEQT4) (open box)",
+    "category": "Техника",
+    "revenue": 20000.0
+  },
+  {
+    "id": "5-5",
+    "date": "2026-09-05",
+    "day": 5,
+    "transactionId": "2026-09-05-01",
+    "name": "Apple EarPods USB-C (MTJY3)",
+    "category": "Аксессуары",
+    "revenue": 1200.0
+  },
+  {
+    "id": "5-6",
+    "date": "2026-09-05",
+    "day": 5,
+    "transactionId": "2026-09-05-01",
+    "name": "Silicone Case New for AirPods Pro 3, Pink Sand",
+    "category": "Аксессуары",
+    "revenue": 320.0
+  },
+  {
+    "id": "5-7",
+    "date": "2026-09-05",
+    "day": 5,
+    "transactionId": "2026-09-05-01",
+    "name": "Laut CRYSTAL MATTER Case with MagSafe for iPhone 16 Pro Max, Denim Blue (L_IP24D_CM_BL)",
+    "category": "Аксессуары",
+    "revenue": 1440.0
+  },
+  {
+    "id": "5-8",
+    "date": "2026-09-05",
+    "day": 5,
+    "transactionId": "2026-09-05-01",
+    "name": "Ремонт в іншому СЦ (як товар) (Пайка)",
+    "category": "Ремонты",
+    "revenue": 21000.0
+  },
+  {
+    "id": "5-9",
+    "date": "2026-09-05",
+    "day": 5,
+    "transactionId": "2026-09-05-01",
+    "name": "Apple USB-C to Lightning Cable 1m (MK0X2/MQGJ2/MM0A3)",
+    "category": "Аксессуары",
+    "revenue": 1000.0
+  },
+  {
+    "id": "5-10",
+    "date": "2026-09-05",
+    "day": 5,
+    "transactionId": "2026-09-05-01",
+    "name": "Soneex Pro 2.5D Full Screen 0.26mm Mesh + Anti Static for iPhone 16 Pro Max, Black",
+    "category": "Аксессуары",
+    "revenue": 2000.0
+  },
+  {
+    "id": "5-11",
+    "date": "2026-09-05",
+    "day": 5,
+    "transactionId": "2026-09-05-01",
+    "name": "Full Cover 9D Tempered Glass for iPhone 16 Pro",
+    "category": "Аксессуары",
+    "revenue": 999.0
+  },
+  {
+    "id": "5-12",
+    "date": "2026-09-05",
+    "day": 5,
+    "transactionId": "2026-09-05-01",
+    "name": "Monblan Magnetic Crystal Series Case for iPhone 17 Pro, Transparent",
+    "category": "Аксессуары",
+    "revenue": 1200.0
+  },
+  {
+    "id": "5-13",
+    "date": "2026-09-05",
+    "day": 5,
+    "transactionId": "2026-09-05-01",
+    "name": "Apple Silicone Case with MagSafe + Sensor Button for iPhone 17 Pro Max, Terra Cotta (HC)",
+    "category": "Аксессуары",
+    "revenue": 1300.0
+  },
+  {
+    "id": "5-14",
+    "date": "2026-09-05",
+    "day": 5,
+    "transactionId": "2026-09-05-01",
+    "name": "Заробіток з реалізації товару",
+    "category": "Техника",
+    "revenue": 1000.0
+  },
+  {
+    "id": "5-15",
+    "date": "2026-09-05",
+    "day": 5,
+    "transactionId": "2026-09-05-01",
+    "name": "Soneex Pro 2.5D Full Screen 0.26mm Mesh + Anti Static for iPhone 17 Pro Max, Black",
+    "category": "Аксессуары",
+    "revenue": 1400.0
+  },
+  {
+    "id": "5-16",
+    "date": "2026-09-05",
+    "day": 5,
+    "transactionId": "2026-09-05-01",
+    "name": "MW Sleeve Case for MacBook Air 13, Peach",
+    "category": "Аксессуары",
+    "revenue": 2000.0
+  },
+  {
+    "id": "5-17",
+    "date": "2026-09-05",
+    "day": 5,
+    "transactionId": "2026-09-05-01",
+    "name": "Silicone Case New for AirPods Pro 3, Black",
+    "category": "Аксессуары",
+    "revenue": 400.0
+  },
+  {
+    "id": "5-18",
+    "date": "2026-09-05",
+    "day": 5,
+    "transactionId": "2026-09-05-01",
+    "name": "Laut Huex Protect for iPhone 16 Plus with MagSafe, Blue (L_IP24C_HPT_BL)",
+    "category": "Техника",
+    "revenue": 1200.0
+  },
+  {
+    "id": "5-20",
+    "date": "2026-09-05",
+    "day": 5,
+    "transactionId": "2026-09-05-02",
+    "name": "iPad 11'' Wi-Fi 128GB Blue (MD4A4) 2025",
+    "category": "Техника",
+    "revenue": 23000.0
+  },
+  {
+    "id": "5-21",
+    "date": "2026-09-05",
+    "day": 5,
+    "transactionId": "2026-09-05-02",
+    "name": "iPhone 17 Pro Max 256GB Deep Blue (MFYP4)",
+    "category": "Техника",
+    "revenue": 64000.0
+  },
+  {
+    "id": "5-22",
+    "date": "2026-09-05",
+    "day": 5,
+    "transactionId": "2026-09-05-02",
+    "name": "Пакет послуг iStart (iPhone, 1 рік)",
+    "category": "Услуги",
+    "revenue": 3200.0
+  },
+  {
+    "id": "5-23",
+    "date": "2026-09-05",
+    "day": 5,
+    "transactionId": "2026-09-05-02",
+    "name": "Full Cover 9D Tempered Glass for iPhone 16 Pro Max",
+    "category": "Аксессуары",
+    "revenue": 500.0
+  },
+  {
+    "id": "6-5",
+    "date": "2026-09-06",
+    "day": 6,
+    "transactionId": "2026-09-06-01",
+    "name": "Full Cover 9D Tempered Glass for iPhone 16 Pro",
+    "category": "Аксессуары",
+    "revenue": 200.0
+  },
+  {
+    "id": "6-6",
+    "date": "2026-09-06",
+    "day": 6,
+    "transactionId": "2026-09-06-01",
+    "name": "Гарантія від розбиття скла (на 3 місяці)",
+    "category": "Техника",
+    "revenue": 300.0
+  },
+  {
+    "id": "6-7",
+    "date": "2026-09-06",
+    "day": 6,
+    "transactionId": "2026-09-06-01",
+    "name": "Apple Silicone Case with MagSafe + Sensor Button for iPhone 17 Pro Max, Black (HC)",
+    "category": "Аксессуары",
+    "revenue": 1300.0
+  },
+  {
+    "id": "6-8",
+    "date": "2026-09-06",
+    "day": 6,
+    "transactionId": "2026-09-06-01",
+    "name": "Apple TechWoven Case with MagSafe + Sensor Button for iPhone 17 Pro, Sienna (HC)",
+    "category": "Аксессуары",
+    "revenue": 1400.0
+  },
+  {
+    "id": "6-9",
+    "date": "2026-09-06",
+    "day": 6,
+    "transactionId": "2026-09-06-01",
+    "name": "iPhone 17 256GB Black (MG6J4)",
+    "category": "Техника",
+    "revenue": 42700.0
+  },
+  {
+    "id": "6-10",
+    "date": "2026-09-06",
+    "day": 6,
+    "transactionId": "2026-09-06-01",
+    "name": "Apple Clear Case with MagSafe for iPhone 17 (HC)",
+    "category": "Аксессуары",
+    "revenue": 1000.0
+  },
+  {
+    "id": "6-11",
+    "date": "2026-09-06",
+    "day": 6,
+    "transactionId": "2026-09-06-01",
+    "name": "Soneex Pro 2.5D Full Screen 0.26mm Mesh + Anti Static for iPhone 16 Pro , Black",
+    "category": "Аксессуары",
+    "revenue": 1500.0
+  },
+  {
+    "id": "6-12",
+    "date": "2026-09-06",
+    "day": 6,
+    "transactionId": "2026-09-06-01",
+    "name": "AirPods 4 (MXP63)",
+    "category": "Техника",
+    "revenue": 6000.0
+  },
+  {
+    "id": "6-13",
+    "date": "2026-09-06",
+    "day": 6,
+    "transactionId": "2026-09-06-01",
+    "name": "Soneex Pro 2.5D Full Screen 0.26mm Mesh + Anti Static for iPhone 16 Pro Max, Black",
+    "category": "Аксессуары",
+    "revenue": 1200.0
+  },
+  {
+    "id": "6-14",
+    "date": "2026-09-06",
+    "day": 6,
+    "transactionId": "2026-09-06-01",
+    "name": "Silicone Case for AirPods 4 with Microfiber, Pine Green",
+    "category": "Аксессуары",
+    "revenue": 400.0
+  },
+  {
+    "id": "6-15",
+    "date": "2026-09-06",
+    "day": 6,
+    "transactionId": "2026-09-06-01",
+    "name": "Proove Magnetic PowerBank Hyperion 20W 10000mAh, Black",
+    "category": "Аксессуары",
+    "revenue": 1700.0
+  },
+  {
+    "id": "6-16",
+    "date": "2026-09-06",
+    "day": 6,
+    "transactionId": "2026-09-06-01",
+    "name": "iPhone 17 Pro Max 256GB Deep Blue (MFYP4)",
+    "category": "Техника",
+    "revenue": 65000.0
+  },
+  {
+    "id": "6-17",
+    "date": "2026-09-06",
+    "day": 6,
+    "transactionId": "2026-09-06-01",
+    "name": "Apple AirPods Max 2 Starlight (MHWL4)",
+    "category": "Техника",
+    "revenue": 25500.0
+  },
+  {
+    "id": "6-18",
+    "date": "2026-09-06",
+    "day": 6,
+    "transactionId": "2026-09-06-01",
+    "name": "Spigen Cyrill Kajuk Case with MagSafe for iPhone 15 Pro Max, Blue (ACS07091)",
+    "category": "Аксессуары",
+    "revenue": 2400.0
+  },
+  {
+    "id": "6-19",
+    "date": "2026-09-06",
+    "day": 6,
+    "transactionId": "2026-09-06-01",
+    "name": "Pitaka Ultra-Slim Twill Black/Grey for iPhone Air (KI1701BA)",
+    "category": "Аксессуары",
+    "revenue": 3000.0
+  },
+  {
+    "id": "6-20",
+    "date": "2026-09-06",
+    "day": 6,
+    "transactionId": "2026-09-06-01",
+    "name": "iPhone 17 256GB Black (MG6J4)",
+    "category": "Техника",
+    "revenue": 45000.0
+  },
+  {
+    "id": "6-21",
+    "date": "2026-09-06",
+    "day": 6,
+    "transactionId": "2026-09-06-01",
+    "name": "iCare",
+    "category": "Техника",
+    "revenue": 6750.0
+  },
+  {
+    "id": "6-22",
+    "date": "2026-09-06",
+    "day": 6,
+    "transactionId": "2026-09-06-01",
+    "name": "Apple Silicone Case with MagSafe + Sensor Button for iPhone 17, Black (HC)",
+    "category": "Аксессуары",
+    "revenue": 1300.0
+  },
+  {
+    "id": "6-23",
+    "date": "2026-09-06",
+    "day": 6,
+    "transactionId": "2026-09-06-01",
+    "name": "Soneex Pro 2.5D Full Screen 0.26mm Mesh + Anti Static for iPhone 16 Pro , Black",
+    "category": "Аксессуары",
+    "revenue": 700.0
+  },
+  {
+    "id": "6-24",
+    "date": "2026-09-06",
+    "day": 6,
+    "transactionId": "2026-09-06-01",
+    "name": "Apple 20W USB-C Power Adapter (MHJE3ZM/A) (New)",
+    "category": "Аксессуары",
+    "revenue": 1200.0
+  },
+  {
+    "id": "6-26",
+    "date": "2026-09-06",
+    "day": 6,
+    "transactionId": "2026-09-06-02",
+    "name": "Soneex Pro Glass for iPhone 15 Pro Max 2.5D Full Screen",
+    "category": "Аксессуары",
+    "revenue": 1000.0
+  },
+  {
+    "id": "6-27",
+    "date": "2026-09-06",
+    "day": 6,
+    "transactionId": "2026-09-06-02",
+    "name": "iPhone 17 Pro Max 512GB Deep Blue (MFYU4)",
+    "category": "Техника",
+    "revenue": 75000.0
+  },
+  {
+    "id": "6-28",
+    "date": "2026-09-06",
+    "day": 6,
+    "transactionId": "2026-09-06-02",
+    "name": "WIWU Hard Shell Series for MacBook Air 13\" [2022- 2026] , Transparent-Matte",
+    "category": "Аксессуары",
+    "revenue": 1500.0
+  },
+  {
+    "id": "6-29",
+    "date": "2026-09-06",
+    "day": 6,
+    "transactionId": "2026-09-06-02",
+    "name": "iPhone 17 256GB Lavender (MG6M4)",
+    "category": "Техника",
+    "revenue": 45000.0
+  },
+  {
+    "id": "6-30",
+    "date": "2026-09-06",
+    "day": 6,
+    "transactionId": "2026-09-06-02",
+    "name": "Пакет послуг iStart (iPhone, 2 роки)",
+    "category": "Услуги",
+    "revenue": 4500.0
+  },
+  {
+    "id": "6-31",
+    "date": "2026-09-06",
+    "day": 6,
+    "transactionId": "2026-09-06-02",
+    "name": "Proove Pure GaN Plus 30W (Type-C + USB), White",
+    "category": "Аксессуары",
+    "revenue": 800.0
+  },
+  {
+    "id": "6-33",
+    "date": "2026-09-06",
+    "day": 6,
+    "transactionId": "2026-09-06-03",
+    "name": "Proove Pillar Case for iPad Air 11, Yellow",
+    "category": "Аксессуары",
+    "revenue": 1500.0
+  },
+  {
+    "id": "6-34",
+    "date": "2026-09-06",
+    "day": 6,
+    "transactionId": "2026-09-06-03",
+    "name": "Soneex Pro 2.5D Full Screen 0.26mm Mesh + Anti Static for iPhone 16 Pro , Black",
+    "category": "Аксессуары",
+    "revenue": 1500.0
+  },
+  {
+    "id": "6-35",
+    "date": "2026-09-06",
+    "day": 6,
+    "transactionId": "2026-09-06-03",
+    "name": "Full Cover 9D Tempered Glass for iPhone 16 Pro Max",
+    "category": "Аксессуары",
+    "revenue": 1000.0
+  },
+  {
+    "id": "6-36",
+    "date": "2026-09-06",
+    "day": 6,
+    "transactionId": "2026-09-06-03",
+    "name": "Monblan Magnetic Crystal Series Case for iPhone 15 Pro, Transparent",
+    "category": "Аксессуары",
+    "revenue": 800.0
+  },
+  {
+    "id": "6-37",
+    "date": "2026-09-06",
+    "day": 6,
+    "transactionId": "2026-09-06-03",
+    "name": "Full Cover 9D Tempered Glass for iPhone 15 Pro",
+    "category": "Аксессуары",
+    "revenue": 500.0
+  },
+  {
+    "id": "6-38",
+    "date": "2026-09-06",
+    "day": 6,
+    "transactionId": "2026-09-06-03",
+    "name": "Ремонт в іншому СЦ Заміна АКБ (як товар) iPhone 15 Pro",
+    "category": "Ремонты",
+    "revenue": 3000.0
+  },
+  {
+    "id": "6-39",
+    "date": "2026-09-06",
+    "day": 6,
+    "transactionId": "2026-09-06-03",
+    "name": "Apple Silicone Case with MagSafe + Sensor Button for iPhone 17 Pro, Black (HC)",
+    "category": "Аксессуары",
+    "revenue": 1300.0
+  },
+  {
+    "id": "6-40",
+    "date": "2026-09-06",
+    "day": 6,
+    "transactionId": "2026-09-06-03",
+    "name": "Proove Pocket GaN 45W (Type-C + USB), White (WCPG45110002)",
+    "category": "Аксессуары",
+    "revenue": 1500.0
+  },
+  {
+    "id": "6-41",
+    "date": "2026-09-06",
+    "day": 6,
+    "transactionId": "2026-09-06-03",
+    "name": "Soneex Pro 2.5D Full Screen 0.26mm Mesh + Anti Static for iPhone 16 Pro , Black",
+    "category": "Аксессуары",
+    "revenue": 1500.0
+  },
+  {
+    "id": "6-42",
+    "date": "2026-09-06",
+    "day": 6,
+    "transactionId": "2026-09-06-03",
+    "name": "Заробіток з реалізації товару",
+    "category": "Техника",
+    "revenue": 800.0
+  },
+  {
+    "id": "6-44",
+    "date": "2026-09-06",
+    "day": 6,
+    "transactionId": "2026-09-06-04",
+    "name": "iLera FocusPro Lens for camera iPhone 15 / 15 Plus, Blue",
+    "category": "Аксессуары",
+    "revenue": 1000.0
+  },
+  {
+    "id": "6-45",
+    "date": "2026-09-06",
+    "day": 6,
+    "transactionId": "2026-09-06-04",
+    "name": "iLera Deluxe FullCover Glass for iPhone 15/16",
+    "category": "Аксессуары",
+    "revenue": 1200.0
+  },
+  {
+    "id": "6-46",
+    "date": "2026-09-06",
+    "day": 6,
+    "transactionId": "2026-09-06-04",
+    "name": "Apple 20W USB-C Power Adapter (MHJE3ZM/A) (New)",
+    "category": "Аксессуары",
+    "revenue": 1100.0
+  },
+  {
+    "id": "6-47",
+    "date": "2026-09-06",
+    "day": 6,
+    "transactionId": "2026-09-06-04",
+    "name": "Proove WireX Type-C to Type-C 60W (1m), White (CCWX60002202)",
+    "category": "Аксессуары",
+    "revenue": 600.0
+  },
+  {
+    "id": "6-48",
+    "date": "2026-09-06",
+    "day": 6,
+    "transactionId": "2026-09-06-04",
+    "name": "Apple Silicone Case with MagSafe + Sensor Button for iPhone 17 Pro, Anchor Blue (HC)",
+    "category": "Аксессуары",
+    "revenue": 1300.0
+  },
+  {
+    "id": "7-5",
+    "date": "2026-09-07",
+    "day": 7,
+    "transactionId": "2026-09-07-01",
+    "name": "WIWU Hard Shell Series for MacBook Air 15\" [2023- 2026], Black Matte",
+    "category": "Аксессуары",
+    "revenue": 1500.0
+  },
+  {
+    "id": "7-6",
+    "date": "2026-09-07",
+    "day": 7,
+    "transactionId": "2026-09-07-01",
+    "name": "Soneex Pro Glass for iPhone 15 Pro Max 2.5D Full Screen",
+    "category": "Аксессуары",
+    "revenue": 1100.0
+  },
+  {
+    "id": "7-7",
+    "date": "2026-09-07",
+    "day": 7,
+    "transactionId": "2026-09-07-01",
+    "name": "iPhone 17 256GB White (MG6K4)",
+    "category": "Техника",
+    "revenue": 45000.0
+  },
+  {
+    "id": "7-8",
+    "date": "2026-09-07",
+    "day": 7,
+    "transactionId": "2026-09-07-01",
+    "name": "Пакет послуг iStart (iPhone, 2 роки)",
+    "category": "Услуги",
+    "revenue": 4500.0
+  },
+  {
+    "id": "7-9",
+    "date": "2026-09-07",
+    "day": 7,
+    "transactionId": "2026-09-07-01",
+    "name": "Apple Silicone Case with MagSafe + Sensor Button for iPhone 17, Anchor Blue (HC)",
+    "category": "Аксессуары",
+    "revenue": 1000.0
+  },
+  {
+    "id": "7-10",
+    "date": "2026-09-07",
+    "day": 7,
+    "transactionId": "2026-09-07-01",
+    "name": "Proove Pocket GaN 30W (Type-C + USB), White (WCPG30110002)",
+    "category": "Аксессуары",
+    "revenue": 1000.0
+  },
+  {
+    "id": "7-11",
+    "date": "2026-09-07",
+    "day": 7,
+    "transactionId": "2026-09-07-01",
+    "name": "iPhone 17 Pro Max 1TB eSIM Silver (MFXN4)",
+    "category": "Техника",
+    "revenue": 82100.0
+  },
+  {
+    "id": "7-12",
+    "date": "2026-09-07",
+    "day": 7,
+    "transactionId": "2026-09-07-01",
+    "name": "Apple TechWoven Case with MagSafe + Sensor Button for iPhone 17 Pro Max, Green (HC)",
+    "category": "Аксессуары",
+    "revenue": 1400.0
+  },
+  {
+    "id": "7-13",
+    "date": "2026-09-07",
+    "day": 7,
+    "transactionId": "2026-09-07-01",
+    "name": "Soneex Pro 2.5D Full Screen 0.26mm Mesh + Anti Static for iPhone 17 Pro Max, Black",
+    "category": "Аксессуары",
+    "revenue": 1600.0
+  },
+  {
+    "id": "7-15",
+    "date": "2026-09-07",
+    "day": 7,
+    "transactionId": "2026-09-07-02",
+    "name": "iPhone 16 Pro Max 256GB Desert Titanium",
+    "category": "Техника",
+    "revenue": 59000.0
+  },
+  {
+    "id": "7-16",
+    "date": "2026-09-07",
+    "day": 7,
+    "transactionId": "2026-09-07-02",
+    "name": "WIWU Classic III Case for iPad Air4/5 10.9\"/Air6 11\" [2024]/Pro 11\" [2020-2022], Pink",
+    "category": "Аксессуары",
+    "revenue": 1500.0
+  },
+  {
+    "id": "7-17",
+    "date": "2026-09-07",
+    "day": 7,
+    "transactionId": "2026-09-07-02",
+    "name": "AirPods Pro 3 (MFHP4)",
+    "category": "Техника",
+    "revenue": 11000.0
+  },
+  {
+    "id": "8-5",
+    "date": "2026-09-08",
+    "day": 8,
+    "transactionId": "2026-09-08-01",
+    "name": "Apple Pencil USB-C (MUWA3)",
+    "category": "Аксессуары",
+    "revenue": 4700.0
+  },
+  {
+    "id": "9-5",
+    "date": "2026-09-09",
+    "day": 9,
+    "transactionId": "2026-09-09-01",
+    "name": "Apple 40W Dynamic Power Adapter with 60W Max (MGKN4)",
+    "category": "Аксессуары",
+    "revenue": 2000.0
+  },
+  {
+    "id": "9-7",
+    "date": "2026-09-09",
+    "day": 9,
+    "transactionId": "2026-09-09-02",
+    "name": "iPhone 17 Pro 512GB Silver (MG8K4)",
+    "category": "Техника",
+    "revenue": 70000.0
+  },
+  {
+    "id": "9-8",
+    "date": "2026-09-09",
+    "day": 9,
+    "transactionId": "2026-09-09-02",
+    "name": "Пакет послуг iStart (iPhone, 2 роки)",
+    "category": "Услуги",
+    "revenue": 7000.0
+  },
+  {
+    "id": "9-9",
+    "date": "2026-09-09",
+    "day": 9,
+    "transactionId": "2026-09-09-02",
+    "name": "Apple Silicone Case with MagSafe + Sensor Button for iPhone 17 Pro, Vanilla (HC)",
+    "category": "Аксессуары",
+    "revenue": 1200.0
+  },
+  {
+    "id": "9-11",
+    "date": "2026-09-09",
+    "day": 9,
+    "transactionId": "2026-09-09-03",
+    "name": "WIWU Crystal Shield Series for MacBook Air 13 [2022] M2, Clear",
+    "category": "Аксессуары",
+    "revenue": 1500.0
+  },
+  {
+    "id": "9-12",
+    "date": "2026-09-09",
+    "day": 9,
+    "transactionId": "2026-09-09-03",
+    "name": "iPhone 17 Pro Max 256GB Deep Blue (MFYP4)",
+    "category": "Техника",
+    "revenue": 65000.0
+  },
+  {
+    "id": "9-13",
+    "date": "2026-09-09",
+    "day": 9,
+    "transactionId": "2026-09-09-03",
+    "name": "Proove Silicone Power 45W Type C + USB, White",
+    "category": "Аксессуары",
+    "revenue": 1300.0
+  },
+  {
+    "id": "9-14",
+    "date": "2026-09-09",
+    "day": 9,
+    "transactionId": "2026-09-09-03",
+    "name": "Proove Silicone Power 45W Type C + USB, White",
+    "category": "Аксессуары",
+    "revenue": 1300.0
+  },
+  {
+    "id": "9-15",
+    "date": "2026-09-09",
+    "day": 9,
+    "transactionId": "2026-09-09-03",
+    "name": "Proove WireX Type-C to Type-C 60W (1m), White (CCWX60002202)",
+    "category": "Аксессуары",
+    "revenue": 600.0
+  },
+  {
+    "id": "9-16",
+    "date": "2026-09-09",
+    "day": 9,
+    "transactionId": "2026-09-09-03",
+    "name": "Apple Silicone Case with MagSafe + Sensor Button for iPhone 17 Pro Max, Black (HC)",
+    "category": "Аксессуары",
+    "revenue": 1300.0
+  },
+  {
+    "id": "9-17",
+    "date": "2026-09-09",
+    "day": 9,
+    "transactionId": "2026-09-09-03",
+    "name": "Пакет послуг iStart (iPhone, 1 рік)",
+    "category": "Услуги",
+    "revenue": 3300.0
+  },
+  {
+    "id": "9-18",
+    "date": "2026-09-09",
+    "day": 9,
+    "transactionId": "2026-09-09-03",
+    "name": "iLera DeLuxe Original Glass 2.0 for iPhone 17 Pro Max",
+    "category": "Аксессуары",
+    "revenue": 1400.0
+  },
+  {
+    "id": "9-19",
+    "date": "2026-09-09",
+    "day": 9,
+    "transactionId": "2026-09-09-03",
+    "name": "Spigen Ultra Hybrid Case for iPhone 16 Pro Max, Clear (ACS07992)",
+    "category": "Аксессуары",
+    "revenue": 1200.0
+  },
+  {
+    "id": "9-20",
+    "date": "2026-09-09",
+    "day": 9,
+    "transactionId": "2026-09-09-03",
+    "name": "Apple Clear Case with MagSafe for iPhone 17 Pro Max, White (HC)",
+    "category": "Аксессуары",
+    "revenue": 960.0
+  },
+  {
+    "id": "9-21",
+    "date": "2026-09-09",
+    "day": 9,
+    "transactionId": "2026-09-09-03",
+    "name": "iPhone 17 Pro Max 512GB eSIM Silver (MFXK4)",
+    "category": "Техника",
+    "revenue": 71500.0
+  },
+  {
+    "id": "9-22",
+    "date": "2026-09-09",
+    "day": 9,
+    "transactionId": "2026-09-09-03",
+    "name": "Пакет послуг iStart (iPhone, 1 рік)",
+    "category": "Услуги",
+    "revenue": 2500.0
+  },
+  {
+    "id": "10-5",
+    "date": "2026-09-10",
+    "day": 10,
+    "transactionId": "2026-09-10-01",
+    "name": "Watch Series 11 GPS, 46mm Jet Black Aluminum Case with Black Sport Band (M/L) (MEUX4)",
+    "category": "Техника",
+    "revenue": 20000.0
+  },
+  {
+    "id": "10-6",
+    "date": "2026-09-10",
+    "day": 10,
+    "transactionId": "2026-09-10-01",
+    "name": "Пакет послуг iStart Watch (series 9 / 10 / Ultra / 2 роки)",
+    "category": "Услуги",
+    "revenue": 4000.0
+  },
+  {
+    "id": "10-7",
+    "date": "2026-09-10",
+    "day": 10,
+    "transactionId": "2026-09-10-02",
+    "name": "Phone 17 256GB White (MG6K4)",
+    "category": "Техника",
+    "revenue": 44900.0
+  },
+  {
+    "id": "10-8",
+    "date": "2026-09-10",
+    "day": 10,
+    "transactionId": "2026-09-10-02",
+    "name": "oneex Pro 2.5D Full Screen 0.26mm Mesh + Anti Static for iPhone 16 Pro , Black",
+    "category": "Аксессуары",
+    "revenue": 1500.0
+  },
+  {
+    "id": "10-9",
+    "date": "2026-09-10",
+    "day": 10,
+    "transactionId": "2026-09-10-02",
+    "name": "Monblan Magnetic Crystal Series Case for iPhone 17, Transparent",
+    "category": "Аксессуары",
+    "revenue": 900.0
+  },
+  {
+    "id": "10-10",
+    "date": "2026-09-10",
+    "day": 10,
+    "transactionId": "2026-09-10-03",
+    "name": "iPhone 17 Pro 256GB Silver (MG8G4)",
+    "category": "Техника",
+    "revenue": 61500.0
+  },
+  {
+    "id": "10-11",
+    "date": "2026-09-10",
+    "day": 10,
+    "transactionId": "2026-09-10-03",
+    "name": "Full Cover 9D Tempered Glass for iPhone 16 Pro",
+    "category": "Аксессуары",
+    "revenue": 500.0
+  },
+  {
+    "id": "10-12",
+    "date": "2026-09-10",
+    "day": 10,
+    "transactionId": "2026-09-10-03",
+    "name": "Пакет послуг iStart (iPhone, 1 рік)",
+    "category": "Услуги",
+    "revenue": 3075.0
+  },
+  {
+    "id": "10-14",
+    "date": "2026-09-10",
+    "day": 10,
+    "transactionId": "2026-09-10-04",
+    "name": "Soneex 2.5D Full Silk Screen 0.26mm for iPhone 12/12 Pro, Black",
+    "category": "Аксессуары",
+    "revenue": 600.0
+  },
+  {
+    "id": "11-5",
+    "date": "2026-09-11",
+    "day": 11,
+    "transactionId": "2026-09-11-01",
+    "name": "AirPods 4 with Active Noise Cancellation (MXP93)",
+    "category": "Техника",
+    "revenue": 9000.0
+  },
+  {
+    "id": "11-6",
+    "date": "2026-09-11",
+    "day": 11,
+    "transactionId": "2026-09-11-01",
+    "name": "Native Union Active Case Black for Airpods 4th Gen (ACTCSE-BLK-AP4)",
+    "category": "Аксессуары",
+    "revenue": 1300.0
+  },
+  {
+    "id": "11-7",
+    "date": "2026-09-11",
+    "day": 11,
+    "transactionId": "2026-09-11-02",
+    "name": "Anker SOLIX C1000X Gen 2 (A17633A1)",
+    "category": "Техника",
+    "revenue": 33900.0
+  }
+]

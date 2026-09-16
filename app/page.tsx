@@ -1,309 +1,795 @@
-'use client';
+"use client";
 
-import { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, BarChart3, Bell, BellOff, BriefcaseBusiness, Check, CirclePlay, ClipboardCheck, Clock3, Coffee, Crown, FileDown, ListPlus, Minus, Pencil, Plus, ReceiptText, RotateCcw, Save, Settings2, Sparkles, Target, Trash2, UserRound, Wrench } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select';
+import { useEffect, useMemo, useState } from "react";
+import {
+  BarChart3,
+  Boxes,
+  CalendarDays,
+  CheckCircle2,
+  CircleDollarSign,
+  History,
+  Link2,
+  LoaderCircle,
+  PackageCheck,
+  Search,
+  Sparkles,
+  Wrench,
+} from "lucide-react";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Pie,
+  PieChart,
+  XAxis,
+  YAxis,
+} from "recharts";
 
-const team = ['Макс', 'Алина', 'Алексей', 'Коля', 'Ксюша', 'Ира'];
-const tech = [
-  { id: 'new', label: 'Apple · нова', personal: 80, online: 40 },
-  { id: 'open', label: 'Apple · open box', personal: 120, online: 60 },
-  { id: 'used', label: 'Apple · вживана', personal: 160, online: 80 },
-  { id: 'periphery', label: 'Периферія', personal: 50, online: 25 },
-  { id: 'other', label: 'Техніка · інше', personal: 80, online: 40 },
-];
-const accessories = [
-  { id: 'glass', label: 'Скло і плівки', rates: [8, 9, 10] },
-  { id: 'small', label: 'До 1 000 грн', rates: [10, 12, 14] },
-  { id: 'middle', label: '1 001–3 000 грн', rates: [3, 5, 7] },
-  { id: 'large', label: 'Від 3 001 грн', rates: [2, 3, 4] },
-  { id: 'original', label: 'Apple original', rates: [2, 3, 4] },
-];
-const bonuses = [
-  { id: 'google', label: 'Відгук Google', short: 'G', value: 100 },
-  { id: 'hotline', label: 'Hotline / Instagram', short: 'H', value: 300 },
-  { id: 'hire', label: 'Рекомендація людини', short: '+', value: 4000 },
-];
-const servicePlans = [
-  { value: 'basic', label: 'Базовий · 20%', rate: 20 },
-  { value: 'plus', label: 'Понад план · 25%', rate: 25 },
-  { value: 'pro', label: 'Понад план + · 30%', rate: 30 },
-  { value: 'max', label: 'Понад план ++ · 35%', rate: 35 },
-];
-type Values = Record<string, number>;
-type DailyReport = { id: string; employee: string; date: string; base: number; tech: number; accessories: number; services: number; serviceUnits: number; repairs: number; focus: number; bonuses: number; total: number; units: number; turnover: number; approaches: number };
-type QueueState = { queue: string[]; frozenEmployees: string[]; approachCounts: Record<string, number>; notificationsEnabled: boolean };
-type Mood = 'low' | 'okay' | 'great';
-type MoodState = { moods: Record<string, Mood>; counts: Record<Mood, number> };
-type NewsState = { message: string; author: string; updatedAt: number };
-type CalculatorDraft = { employee?: string; dayRate?: number; days?: number; plan?: string; servicePlan?: string; techCount?: Values; accessorySums?: Values; serviceAmount?: number; serviceCount?: number; repairProfit?: number; focusPay?: number; bonusCount?: Values; savedAt?: number };
-const DRAFT_STORAGE_KEY = 'ipeople-pulse-shift-draft-v2';
-const PROFILE_STORAGE_KEY = 'ipeople-pulse-active-profile-v1';
-const PROFILE_SESSION_KEY = 'ipeople-pulse-active-cabinet-v2';
-const profileDraftKey = (employee: string) => `${DRAFT_STORAGE_KEY}:${encodeURIComponent(employee.trim().toLocaleLowerCase())}`;
-const unavailableProfiles = new Set(['Арсен']);
-const defaultNews: NewsState = { message: 'Нехай ця зміна буде сильною. Підтримуємо одне одного та робимо свій максимум.', author: 'iPeople PULSE', updatedAt: 0 };
-const moodOptions: { value: Mood; emoji: string; label: string }[] = [{ value: 'low', emoji: '😕', label: 'Поганий' }, { value: 'okay', emoji: '🙂', label: 'Середній' }, { value: 'great', emoji: '🤩', label: 'Відмінний' }];
-const money = (value: number) => new Intl.NumberFormat('uk-UA', { style: 'currency', currency: 'UAH', maximumFractionDigits: 0 }).format(value);
-const api = (path: string) => typeof window !== 'undefined' && window.location.hostname === 'afkk1ng.github.io' ? `https://ipeople-pulse.maxpysmennyi.chatgpt.site${path}` : path;
-const telegramSafe = (value: string) => value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-const emptyTech = () => Object.fromEntries(tech.flatMap(x => [[`${x.id}-personal`, 0], [`${x.id}-online`, 0]]));
-const emptyAccessories = () => Object.fromEntries(accessories.map(x => [x.id, 0]));
-const emptyBonuses = () => Object.fromEntries(bonuses.map(x => [x.id, 0]));
+import { Button } from "@/components/ui/button";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { importGoogleSheet, requestSheetsAccess, type ImportedSale } from "@/lib/google-sheets";
+import salesData from "./sales-data.json";
 
-function cabinetFromUrl() {
-  if (typeof window === 'undefined') return '';
-  return new URLSearchParams(window.location.hash.replace(/^#/, '')).get('cabinet')?.trim() ?? '';
+type Category = "Техника" | "Аксессуары" | "Услуги";
+type CategoryFilter = "Все" | Category;
+type SortKey = "revenue" | "quantity";
+
+type Sale = ImportedSale;
+
+type ProductSummary = {
+  name: string;
+  category: Category;
+  quantity: number;
+  revenue: number;
+};
+
+type ImportHistoryEntry = {
+  id: string;
+  sheetUrl: string;
+  sourceTitle: string;
+  importedAt: string;
+  records: Sale[];
+};
+
+type SavedDashboardState = {
+  sheetUrl: string;
+  sourceTitle: string;
+  importedAt: string;
+  records: Sale[];
+  history: ImportHistoryEntry[];
+  dateFrom: string;
+  dateTo: string;
+};
+
+const snapshotRecords = salesData as Sale[];
+const categories: CategoryFilter[] = ["Все", "Техника", "Аксессуары", "Услуги"];
+const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? "";
+const storageKey = "republic-sales-dashboard-v1";
+const snapshotBounds = dateBounds(snapshotRecords);
+
+const categoryColors: Record<Category, string> = {
+  Техника: "#ff8a52",
+  Аксессуары: "#16b8a6",
+  Услуги: "#3b82f6",
+};
+
+const currency = new Intl.NumberFormat("uk-UA", {
+  style: "currency",
+  currency: "UAH",
+  maximumFractionDigits: 0,
+});
+
+const compactCurrency = new Intl.NumberFormat("uk-UA", {
+  notation: "compact",
+  style: "currency",
+  currency: "UAH",
+  maximumFractionDigits: 1,
+});
+
+const dateTime = new Intl.DateTimeFormat("ru-RU", {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+});
+
+function dateBounds(data: Sale[]) {
+  const dates = data.map((sale) => sale.date).filter(Boolean).sort();
+  return { first: dates[0] ?? "", last: dates.at(-1) ?? "" };
 }
 
-function saveCabinetLocation(employee: string) {
-  if (typeof window === 'undefined') return;
-  const hash = new URLSearchParams(window.location.hash.replace(/^#/, ''));
-  hash.set('cabinet', employee);
-  window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}#${hash.toString()}`);
+function formatPeriod(firstDate: string, lastDate: string) {
+  if (!firstDate || !lastDate) return "Нет данных";
+  const first = new Date(`${firstDate}T00:00:00`);
+  const last = new Date(`${lastDate}T00:00:00`);
+  const fullDate = new Intl.DateTimeFormat("ru-RU", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+
+  if (firstDate === lastDate) return fullDate.format(last).replace(" г.", "");
+  if (first.getMonth() === last.getMonth() && first.getFullYear() === last.getFullYear()) {
+    const dateParts = fullDate.formatToParts(last);
+    const month = dateParts.find((part) => part.type === "month")?.value ?? "";
+    const year = dateParts.find((part) => part.type === "year")?.value ?? last.getFullYear().toString();
+    return `${first.getDate()}–${last.getDate()} ${month} ${year}`;
+  }
+  return `${fullDate.format(first).replace(" г.", "")} — ${fullDate.format(last).replace(" г.", "")}`;
 }
 
-function Picker({ value, onChange, options, label }: { value: string; onChange: (value: string) => void; options: { value: string; label: string }[]; label: string }) {
-  const selectedLabel = options.find(option => option.value === value)?.label ?? value;
-  return <Select value={value} onValueChange={nextValue => { if (nextValue) onChange(nextValue); }}><SelectTrigger aria-label={label} className="h-11 w-full rounded-xl border-0 bg-[#edf0f5] px-4 text-sm font-semibold text-[#3c424c]"><span className="min-w-0 flex-1 truncate text-left">{selectedLabel}</span></SelectTrigger><SelectContent className="cyber-select-content">{options.map(x => <SelectItem className="cyber-select-item" key={x.value} value={x.value}>{x.label}</SelectItem>)}</SelectContent></Select>;
+function aggregateProducts(data: Sale[]) {
+  const products = new Map<string, ProductSummary>();
+  data.forEach((sale) => {
+    const key = `${sale.category}:${sale.name}`;
+    const product = products.get(key) ?? {
+      name: sale.name,
+      category: sale.category as Category,
+      quantity: 0,
+      revenue: 0,
+    };
+    product.quantity += 1;
+    product.revenue += sale.revenue;
+    products.set(key, product);
+  });
+  return [...products.values()];
 }
 
-function Stepper({ value, onChange, compact = false }: { value: number; onChange: (value: number) => void; compact?: boolean }) {
-  return <div className={`cyber-stepper flex items-center justify-between rounded-xl ${compact ? 'px-2 py-1.5' : 'px-3 py-2'}`}><button aria-label="Зменшити" onClick={() => onChange(Math.max(0, value - 1))} className="cyber-stepper-control grid size-7 place-items-center rounded-lg"><Minus className="size-4" /></button><span className="cyber-stepper-value min-w-7 text-center text-base font-black">{value}</span><button aria-label="Збільшити" onClick={() => onChange(value + 1)} className="cyber-stepper-control grid size-7 place-items-center rounded-lg"><Plus className="size-4" /></button></div>;
+function MetricCard({
+  label,
+  value,
+  detail,
+  icon: Icon,
+  tone = "navy",
+}: {
+  label: string;
+  value: string;
+  detail: string;
+  icon: typeof CircleDollarSign;
+  tone?: "navy" | "mint" | "orange" | "white";
+}) {
+  return (
+    <article className={`metric-card metric-card--${tone}`}>
+      <div className="metric-card__top">
+        <span>{label}</span>
+        <Icon aria-hidden="true" />
+      </div>
+      <strong>{value}</strong>
+      <p>{detail}</p>
+    </article>
+  );
 }
 
-function AmountField({ value, onChange, placeholder }: { value: number; onChange: (value: number) => void; placeholder: string }) {
-  return <div className="relative"><Input inputMode="numeric" value={value || ''} onChange={e => onChange(Number(e.target.value.replace(/\D/g, '')) || 0)} placeholder={placeholder} className="h-11 rounded-xl border-0 bg-[#edf0f5] pr-11 text-right text-base font-bold shadow-none placeholder:text-[#9ba2af] focus-visible:ring-2" /><span className="pointer-events-none absolute right-4 top-2.5 text-sm font-semibold text-[#8a92a0]">грн</span></div>;
+function CategoryBadge({ category }: { category: Category }) {
+  return (
+    <span className={`category-badge category-badge--${category.toLowerCase()}`}>
+      {category}
+    </span>
+  );
+}
+
+function Dashboard() {
+  const [records, setRecords] = useState<Sale[]>(snapshotRecords);
+  const [category, setCategory] = useState<CategoryFilter>("Все");
+  const [query, setQuery] = useState("");
+  const [sortKey, setSortKey] = useState<SortKey>("revenue");
+  const [sheetUrl, setSheetUrl] = useState("");
+  const [sourceTitle, setSourceTitle] = useState("Google Sheets");
+  const [importedAt, setImportedAt] = useState("");
+  const [history, setHistory] = useState<ImportHistoryEntry[]>([]);
+  const [dateFrom, setDateFrom] = useState(snapshotBounds.first);
+  const [dateTo, setDateTo] = useState(snapshotBounds.last);
+  const [storageReady, setStorageReady] = useState(false);
+  const [accessToken, setAccessToken] = useState("");
+  const [importStatus, setImportStatus] = useState<{
+    state: "idle" | "loading" | "success" | "error";
+    message: string;
+  }>({ state: "idle", message: "" });
+
+  const availableDates = useMemo(() => dateBounds(records), [records]);
+  const reportingPeriod = useMemo(() => formatPeriod(dateFrom, dateTo), [dateFrom, dateTo]);
+
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(storageKey);
+      if (raw) {
+        const saved = JSON.parse(raw) as Partial<SavedDashboardState>;
+        if (Array.isArray(saved.records) && saved.records.length) {
+          const bounds = dateBounds(saved.records as Sale[]);
+          setRecords(saved.records as Sale[]);
+          setSheetUrl(saved.sheetUrl ?? "");
+          setSourceTitle(saved.sourceTitle === "Снимок отчёта" ? "Google Sheets" : saved.sourceTitle ?? "Google Sheets");
+          setImportedAt(saved.importedAt ?? "");
+          setHistory(Array.isArray(saved.history) ? saved.history.slice(0, 8) : []);
+          setDateFrom(saved.dateFrom && saved.dateFrom >= bounds.first ? saved.dateFrom : bounds.first);
+          setDateTo(saved.dateTo && saved.dateTo <= bounds.last ? saved.dateTo : bounds.last);
+        }
+      }
+    } catch {
+      setImportStatus({ state: "error", message: "Не удалось восстановить сохранённую историю этого браузера." });
+    } finally {
+      setStorageReady(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!storageReady) return;
+    const saved: SavedDashboardState = {
+      sheetUrl,
+      sourceTitle,
+      importedAt,
+      records,
+      history,
+      dateFrom,
+      dateTo,
+    };
+    try {
+      window.localStorage.setItem(storageKey, JSON.stringify(saved));
+    } catch {
+      setImportStatus({ state: "error", message: "Браузер не смог сохранить историю отчётов." });
+    }
+  }, [dateFrom, dateTo, history, importedAt, records, sheetUrl, sourceTitle, storageReady]);
+
+  async function handleSheetImport(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setImportStatus({ state: "loading", message: "Читаю отчёт…" });
+
+    try {
+      if (!googleClientId) {
+        throw new Error("Для закрытой таблицы нужно один раз добавить Google OAuth Client ID в файл .env.local.");
+      }
+      const token = accessToken || (await requestSheetsAccess(googleClientId));
+      if (!accessToken) setAccessToken(token);
+      const result = await importGoogleSheet(sheetUrl, token);
+      const bounds = dateBounds(result.records);
+      const loadedAt = new Date().toISOString();
+      const entry: ImportHistoryEntry = {
+        id: loadedAt,
+        sheetUrl,
+        sourceTitle: result.title,
+        importedAt: loadedAt,
+        records: result.records,
+      };
+      setRecords(result.records);
+      setSourceTitle(result.title);
+      setImportedAt(loadedAt);
+      setHistory((current) => [entry, ...current].slice(0, 8));
+      setDateFrom(bounds.first);
+      setDateTo(bounds.last);
+      setCategory("Все");
+      setQuery("");
+      setImportStatus({
+        state: "success",
+        message: result.requiresReview
+          ? `Готово: рассчитано ${result.records.length} строк. ${result.requiresReview} строк(и) ждут проверки сотрудника — они не будут начислены автоматически.`
+          : `Готово: рассчитано ${result.records.length} строк. Исходная таблица не изменялась.`,
+      });
+    } catch (error) {
+      setImportStatus({
+        state: "error",
+        message: error instanceof Error ? error.message : "Не удалось прочитать отчёт.",
+      });
+    }
+  }
+
+  function restoreHistory(entryId: string) {
+    const entry = history.find((item) => item.id === entryId);
+    if (!entry) return;
+    const bounds = dateBounds(entry.records);
+    setRecords(entry.records);
+    setSheetUrl(entry.sheetUrl);
+    setSourceTitle(entry.sourceTitle);
+    setImportedAt(entry.importedAt);
+    setDateFrom(bounds.first);
+    setDateTo(bounds.last);
+    setCategory("Все");
+    setQuery("");
+    setImportStatus({ state: "success", message: "Сохранённая загрузка восстановлена." });
+  }
+
+  const periodRecords = useMemo(
+    () => records.filter((sale) => (!dateFrom || sale.date >= dateFrom) && (!dateTo || sale.date <= dateTo)),
+    [dateFrom, dateTo, records],
+  );
+
+  const filtered = useMemo(() => {
+    const normalizedQuery = query.trim().toLocaleLowerCase("ru");
+    return periodRecords.filter((sale) => {
+      const categoryMatches = category === "Все" ? sale.category !== "Ремонты" : sale.category === category;
+      const queryMatches = !normalizedQuery || sale.name.toLocaleLowerCase("ru").includes(normalizedQuery);
+      return categoryMatches && queryMatches;
+    });
+  }, [category, periodRecords, query]);
+
+  const totals = useMemo(() => {
+    const allRevenue = periodRecords.reduce((sum, sale) => sum + sale.revenue, 0);
+    const revenue = category === "Все" && !query.trim()
+      ? allRevenue
+      : filtered.reduce((sum, sale) => sum + sale.revenue, 0);
+    return {
+      revenue,
+      quantity: filtered.length,
+      share: allRevenue ? revenue / allRevenue : 0,
+    };
+  }, [category, filtered, periodRecords, query]);
+
+  const baseCounts = useMemo(() => {
+    const technique = periodRecords.filter((sale) => sale.category === "Техника").length;
+    const accessories = periodRecords.filter((sale) => sale.category === "Аксессуары").length;
+    const services = periodRecords.filter((sale) => sale.category === "Услуги").length;
+    const repairs = periodRecords.filter((sale) => sale.category === "Ремонты").length;
+    return {
+      technique,
+      accessories,
+      services,
+      repairs,
+      categorized: technique + accessories + services,
+      servicePenetration: technique ? services / technique : 0,
+      accessoriesPerDevice: technique ? accessories / technique : 0,
+    };
+  }, [periodRecords]);
+
+  const dailyData = useMemo(() => {
+    const days = new Map<string, number>();
+    const chartRecords = category === "Все" && !query.trim() ? periodRecords : filtered;
+    periodRecords.forEach((sale) => days.set(sale.date, 0));
+    chartRecords.forEach((sale) => days.set(sale.date, (days.get(sale.date) ?? 0) + sale.revenue));
+    return [...days.entries()]
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([date, revenue]) => ({
+        day: new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "short" }).format(
+          new Date(`${date}T00:00:00`),
+        ),
+        revenue,
+      }));
+  }, [category, filtered, periodRecords, query]);
+
+  const categoryData = useMemo(
+    () =>
+      (["Техника", "Аксессуары", "Услуги"] as Category[]).map((item) => ({
+        name: item,
+        value: periodRecords.filter((sale) => sale.category === item).length,
+        share: baseCounts.categorized
+          ? periodRecords.filter((sale) => sale.category === item).length / baseCounts.categorized
+          : 0,
+        fill: categoryColors[item],
+      })),
+    [baseCounts.categorized, periodRecords],
+  );
+
+  const rankedProducts = useMemo(() => {
+    const products = aggregateProducts(filtered);
+    return products.sort((a, b) => b[sortKey] - a[sortKey]).slice(0, 9);
+  }, [filtered, sortKey]);
+
+  const serviceRanking = useMemo(() => {
+    return aggregateProducts(periodRecords.filter((sale) => sale.category === "Услуги"))
+      .sort((a, b) => b.quantity - a.quantity)
+      .slice(0, 4);
+  }, [periodRecords]);
+
+  return (
+    <main className="app-shell">
+      <header className="topbar">
+        <div className="brand-block">
+          <span className="brand-mark" aria-hidden="true">
+            <BarChart3 />
+          </span>
+          <div>
+            <p>Продажи</p>
+            <h1>iPeople Report</h1>
+          </div>
+        </div>
+
+        <div className="topbar-importer">
+          <form className="topbar-importer__form" onSubmit={handleSheetImport}>
+            <label>
+              <span className="sr-only">Ссылка на Google-таблицу</span>
+              <Link2 aria-hidden="true" />
+              <Input
+                type="url"
+                required
+                value={sheetUrl}
+                onChange={(event) => setSheetUrl(event.target.value)}
+                placeholder="Вставьте ссылку на Google-отчёт"
+              />
+            </label>
+            <Button type="submit" disabled={importStatus.state === "loading"}>
+              {importStatus.state === "loading" ? (
+                <LoaderCircle className="animate-spin" aria-hidden="true" />
+              ) : (
+                <BarChart3 aria-hidden="true" />
+              )}
+              Рассчитать
+            </Button>
+          </form>
+          <div className="topbar-importer__meta">
+            <span title={sourceTitle}>{sourceTitle} · только чтение</span>
+            {history.length > 0 && (
+              <label className="history-picker">
+                <History aria-hidden="true" />
+                <span className="sr-only">История загрузок</span>
+                <select value={importedAt} onChange={(event) => restoreHistory(event.target.value)}>
+                  {history.map((entry) => (
+                    <option key={entry.id} value={entry.id}>
+                      {dateTime.format(new Date(entry.importedAt))} · {entry.sourceTitle}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
+          </div>
+          {importStatus.message && (
+            <p className={`import-status import-status--${importStatus.state}`} role="status">
+              {importStatus.state === "success" && <CheckCircle2 aria-hidden="true" />}
+              {importStatus.message}
+            </p>
+          )}
+        </div>
+      </header>
+
+      <section className="dashboard">
+        <div className="dashboard-heading">
+          <div className="period-picker" aria-label="Выбор периода отчёта">
+            <div className="period-picker__title">
+              <CalendarDays aria-hidden="true" />
+              <span>Период</span>
+              <strong>{reportingPeriod}</strong>
+            </div>
+            <label>
+              <span>С</span>
+              <Input
+                type="date"
+                min={availableDates.first}
+                max={availableDates.last}
+                value={dateFrom}
+                onChange={(event) => {
+                  const next = event.target.value;
+                  setDateFrom(next);
+                  if (dateTo && next > dateTo) setDateTo(next);
+                }}
+              />
+            </label>
+            <label>
+              <span>По</span>
+              <Input
+                type="date"
+                min={availableDates.first}
+                max={availableDates.last}
+                value={dateTo}
+                onChange={(event) => {
+                  const next = event.target.value;
+                  setDateTo(next);
+                  if (dateFrom && next < dateFrom) setDateFrom(next);
+                }}
+              />
+            </label>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => {
+                setDateFrom(availableDates.first);
+                setDateTo(availableDates.last);
+              }}
+            >
+              Весь период
+            </Button>
+          </div>
+        </div>
+
+        <div className="metric-grid">
+          <MetricCard
+            label={category === "Все" ? "Выручка" : `Выручка · ${category}`}
+            value={compactCurrency.format(totals.revenue)}
+            detail={`${Math.round(totals.share * 100)}% от общей выручки`}
+            icon={CircleDollarSign}
+            tone="navy"
+          />
+          <MetricCard
+            label="Продано позиций"
+            value={String(totals.quantity)}
+            detail={
+              category === "Все"
+                ? `${baseCounts.repairs} ремонта учтены только в выручке`
+                : `категория «${category}»`
+            }
+            icon={PackageCheck}
+            tone="white"
+          />
+          <MetricCard
+            label="Проникновение услуг"
+            value={`${(baseCounts.servicePenetration * 100).toFixed(1)}%`}
+            detail={`${baseCounts.services} услуг на ${baseCounts.technique} единиц техники`}
+            icon={Wrench}
+            tone="orange"
+          />
+          <MetricCard
+            label="Аксессуаров на технику"
+            value={baseCounts.accessoriesPerDevice.toFixed(1)}
+            detail={`${baseCounts.accessories} аксессуаров на ${baseCounts.technique} единиц техники`}
+            icon={Boxes}
+            tone="mint"
+          />
+        </div>
+
+        <section className="filter-row" aria-label="Фильтры отчёта">
+          <Tabs value={category} onValueChange={(value) => setCategory(value as CategoryFilter)}>
+            <TabsList className="category-tabs">
+              {categories.map((item) => (
+                <TabsTrigger key={item} value={item} className="category-tab">
+                  {item}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
+          <label className="search-box">
+            <Search aria-hidden="true" />
+            <span className="sr-only">Поиск по названию</span>
+            <Input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Найти товар или услугу"
+            />
+          </label>
+        </section>
+
+        <div className="analytics-grid">
+          <article className="panel revenue-panel">
+            <div className="panel-heading">
+              <div>
+                <p className="panel-kicker">Динамика</p>
+                <h3>Выручка по дням</h3>
+              </div>
+              <span>{category}</span>
+            </div>
+            <ChartContainer
+              className="revenue-chart"
+              config={{ revenue: { label: "Выручка", color: "#16b8a6" } }}
+            >
+              <BarChart data={dailyData} margin={{ top: 12, right: 6, bottom: 0, left: -18 }}>
+                <CartesianGrid vertical={false} strokeDasharray="3 5" />
+                <XAxis dataKey="day" tickLine={false} axisLine={false} />
+                <YAxis
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={(value) => `${Math.round(value / 1000)}к`}
+                />
+                <ChartTooltip
+                  cursor={{ fill: "rgba(16, 36, 58, 0.04)" }}
+                  content={
+                    <ChartTooltipContent
+                      formatter={(value) => (
+                        <div className="flex min-w-36 items-center justify-between gap-4">
+                          <span className="text-muted-foreground">Выручка</span>
+                          <strong>{currency.format(Number(value))}</strong>
+                        </div>
+                      )}
+                    />
+                  }
+                />
+                <Bar dataKey="revenue" fill="var(--color-revenue)" radius={[8, 8, 2, 2]} />
+              </BarChart>
+            </ChartContainer>
+          </article>
+
+          <article className="panel mix-panel">
+            <div className="panel-heading">
+              <div>
+                <p className="panel-kicker">Структура</p>
+                <h3>Доля категорий</h3>
+              </div>
+              <span>{baseCounts.categorized} позиций без ремонтов</span>
+            </div>
+            <div className="mix-content">
+              <ChartContainer
+                className="mix-chart"
+                config={{ value: { label: "Позиций", color: "#16b8a6" } }}
+              >
+                <PieChart>
+                  <Pie
+                    data={categoryData}
+                    dataKey="value"
+                    nameKey="name"
+                    innerRadius={52}
+                    outerRadius={78}
+                    paddingAngle={3}
+                    strokeWidth={0}
+                  >
+                    {categoryData.map((entry) => (
+                      <Cell key={entry.name} fill={entry.fill} />
+                    ))}
+                  </Pie>
+                  <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
+                </PieChart>
+              </ChartContainer>
+              <div className="mix-legend">
+                {categoryData.map((item) => (
+                  <div key={item.name}>
+                    <span style={{ backgroundColor: item.fill }} />
+                    <p>{item.name}</p>
+                    <strong>{(item.share * 100).toFixed(1)}%</strong>
+                    <small>{item.value} шт.</small>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <div className="bottom-grid">
+          <article className="panel ranking-panel">
+            <div className="panel-heading panel-heading--table">
+              <div>
+                <p className="panel-kicker">Рейтинг</p>
+                <h3>Сильные и слабые позиции</h3>
+              </div>
+              <div className="sort-actions" aria-label="Сортировка рейтинга">
+                <Button
+                  size="sm"
+                  variant={sortKey === "revenue" ? "default" : "ghost"}
+                  onClick={() => setSortKey("revenue")}
+                >
+                  По выручке
+                </Button>
+                <Button
+                  size="sm"
+                  variant={sortKey === "quantity" ? "default" : "ghost"}
+                  onClick={() => setSortKey("quantity")}
+                >
+                  По количеству
+                </Button>
+              </div>
+            </div>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-12">№</TableHead>
+                  <TableHead>Позиция</TableHead>
+                  <TableHead>Категория</TableHead>
+                  <TableHead className="text-right">Шт.</TableHead>
+                  <TableHead className="text-right">Выручка</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {rankedProducts.map((product, index) => (
+                  <TableRow key={`${product.category}:${product.name}`}>
+                    <TableCell className="rank-number">{String(index + 1).padStart(2, "0")}</TableCell>
+                    <TableCell className="product-name" title={product.name}>
+                      {product.name}
+                    </TableCell>
+                    <TableCell>
+                      <CategoryBadge category={product.category} />
+                    </TableCell>
+                    <TableCell className="text-right font-semibold tabular-nums">
+                      {product.quantity}
+                    </TableCell>
+                    <TableCell className="text-right font-semibold tabular-nums">
+                      {currency.format(product.revenue)}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            {!rankedProducts.length && (
+              <div className="empty-state">По этому запросу ничего не найдено.</div>
+            )}
+          </article>
+
+          <article className="panel penetration-panel">
+            <div className="panel-heading">
+              <div>
+                <p className="panel-kicker">Услуги</p>
+                <h3>Проникновение по пакетам</h3>
+              </div>
+              <Sparkles aria-hidden="true" />
+            </div>
+            <div className="penetration-total">
+              <strong>{(baseCounts.servicePenetration * 100).toFixed(1)}%</strong>
+              <span>услуг на единицу техники</span>
+            </div>
+            <div className="penetration-list">
+              {serviceRanking.map((service) => {
+                const penetration = (service.quantity / baseCounts.technique) * 100;
+                return (
+                  <div key={service.name} className="penetration-item">
+                    <div>
+                      <p>{service.name}</p>
+                      <strong>{penetration.toFixed(1)}%</strong>
+                    </div>
+                    <div className="penetration-track">
+                      <span style={{ width: `${Math.min(penetration * 2.6, 100)}%` }} />
+                    </div>
+                    <small>{service.quantity} продаж</small>
+                  </div>
+                );
+              })}
+            </div>
+          </article>
+        </div>
+
+        <footer className="dashboard-footer">
+          <span>Власність <strong>@Afkk1ng</strong></span>
+        </footer>
+      </section>
+    </main>
+  );
+}
+
+function LoginGate({ onAuthenticated }: { onAuthenticated: () => void }) {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [status, setStatus] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setSubmitting(true);
+    setStatus("");
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ username, password }),
+      });
+      if (!response.ok) {
+        const body = await response.json().catch(() => ({})) as { error?: string };
+        throw new Error(body.error || "Не удалось выполнить вход.");
+      }
+      setPassword("");
+      onAuthenticated();
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : "Не удалось выполнить вход.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <main className="login-shell">
+      <form className="login-card" onSubmit={submit}>
+        <span className="brand-mark" aria-hidden="true"><BarChart3 /></span>
+        <p className="login-eyebrow">iPeople Plus</p>
+        <h1>Вход в аналитику</h1>
+        <p>Продажи, услуги и будущий расчёт зарплаты доступны только после входа.</p>
+        <label>
+          Логин
+          <Input autoComplete="username" value={username} onChange={(event) => setUsername(event.target.value)} required />
+        </label>
+        <label>
+          Пароль
+          <Input type="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} required />
+        </label>
+        {status && <p className="login-error" role="alert">{status}</p>}
+        <Button type="submit" disabled={submitting}>{submitting ? "Проверяю…" : "Войти"}</Button>
+      </form>
+    </main>
+  );
 }
 
 export default function Home() {
-  const [view, setView] = useState<'calculator' | 'leaders' | 'randomizer'>('calculator');
-  const [employee, setEmployee] = useState('');
-  const [dayRate, setDayRate] = useState(500);
-  const [days, setDays] = useState(0);
-  const [plan, setPlan] = useState('under');
-  const [servicePlan, setServicePlan] = useState('basic');
-  const [techCount, setTechCount] = useState<Values>(emptyTech);
-  const [accessorySums, setAccessorySums] = useState<Values>(emptyAccessories);
-  const [serviceAmount, setServiceAmount] = useState(0);
-  const [serviceCount, setServiceCount] = useState(0);
-  const [repairProfit, setRepairProfit] = useState(0);
-  const [focusPay, setFocusPay] = useState(0);
-  const [bonusCount, setBonusCount] = useState<Values>(emptyBonuses);
-  const [reports, setReports] = useState<DailyReport[]>([]);
-  const [queue, setQueue] = useState<string[]>(team);
-  const [frozenEmployees, setFrozenEmployees] = useState<string[]>([]);
-  const [approachCounts, setApproachCounts] = useState<Record<string, number>>({});
-  const [moods, setMoods] = useState<Record<string, Mood>>({});
-  const [moodCounts, setMoodCounts] = useState<Record<Mood, number>>({ low: 0, okay: 0, great: 0 });
-  const [moodSaving, setMoodSaving] = useState(false);
-  const [news, setNews] = useState<NewsState>(defaultNews);
-  const [newsSaving, setNewsSaving] = useState(false);
-  const [newsStatus, setNewsStatus] = useState('');
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const [newQueueName, setNewQueueName] = useState('');
-  const [queueSaving, setQueueSaving] = useState(false);
-  const [queueActor, setQueueActor] = useState('');
-  const [queueActionMessage, setQueueActionMessage] = useState('');
-  const [saved, setSaved] = useState(false);
-  const [sending, setSending] = useState(false);
-  const [sendMessage, setSendMessage] = useState('');
-  const [draftMessage, setDraftMessage] = useState('');
-  const [lastDraftSave, setLastDraftSave] = useState<number | null>(null);
-  const [loaded, setLoaded] = useState(false);
-  const [draftLoaded, setDraftLoaded] = useState(false);
-  const [draftOwner, setDraftOwner] = useState('');
-  const [profileLoaded, setProfileLoaded] = useState(false);
-  const [profileSelectorOpen, setProfileSelectorOpen] = useState(false);
-  const [lastSync, setLastSync] = useState<number | null>(null);
-  const [hydrated, setHydrated] = useState(false);
-  const [dayText, setDayText] = useState('Сьогодні');
-  useEffect(() => { let cancelled = false; const cached = localStorage.getItem('motiva-reports'); if (cached) { try { setReports(JSON.parse(cached) as DailyReport[]); } catch { /* A stale cache never blocks the shared data. */ } } setLoaded(true); const refreshSharedData = () => { void Promise.all([fetch(api('/api/reports')).then(response => response.ok ? response.json() : null), fetch(api('/api/queue')).then(response => response.ok ? response.json() : null), fetch(api('/api/moods')).then(response => response.ok ? response.json() : null), fetch(api('/api/news')).then(response => response.ok ? response.json() : null)]).then(([remoteReports, remoteQueue, remoteMoods, remoteNews]) => { if (cancelled) return; if (Array.isArray(remoteReports)) setReports(remoteReports as DailyReport[]); const queueData = remoteQueue as QueueState | null; if (queueData?.queue?.length) setQueue(queueData.queue); if (queueData?.frozenEmployees) setFrozenEmployees(queueData.frozenEmployees); if (queueData?.approachCounts) setApproachCounts(queueData.approachCounts); if (typeof queueData?.notificationsEnabled === 'boolean') setNotificationsEnabled(queueData.notificationsEnabled); const moodData = remoteMoods as MoodState | null; if (moodData?.moods) setMoods(moodData.moods); if (moodData?.counts) setMoodCounts(moodData.counts); const newsData = remoteNews as Partial<NewsState> | null; if (typeof newsData?.message === 'string' && typeof newsData.author === 'string') setNews({ message: newsData.message, author: newsData.author, updatedAt: Number(newsData.updatedAt) || 0 }); setLastSync(Date.now()); }).catch(() => {}); }; refreshSharedData(); const interval = window.setInterval(() => { if (document.visibilityState === 'visible') refreshSharedData(); }, 4000); const refreshWhenVisible = () => { if (document.visibilityState === 'visible') refreshSharedData(); }; document.addEventListener('visibilitychange', refreshWhenVisible); window.addEventListener('online', refreshSharedData); return () => { cancelled = true; window.clearInterval(interval); document.removeEventListener('visibilitychange', refreshWhenVisible); window.removeEventListener('online', refreshSharedData); }; }, []);
-  useEffect(() => { if (loaded) localStorage.setItem('motiva-reports', JSON.stringify(reports)); }, [loaded, reports]);
-  useEffect(() => { try { const urlCabinet = cabinetFromUrl(); const sessionCabinet = sessionStorage.getItem(PROFILE_SESSION_KEY)?.trim(); const selectedCabinet = urlCabinet || sessionCabinet; localStorage.removeItem(PROFILE_STORAGE_KEY); if (selectedCabinet && !unavailableProfiles.has(selectedCabinet)) { setEmployee(selectedCabinet); setQueueActor(selectedCabinet); } } finally { setProfileLoaded(true); } }, []);
-  useEffect(() => { if (!profileLoaded || !employee) return; setQueueActor(employee); try { sessionStorage.setItem(PROFILE_SESSION_KEY, employee); saveCabinetLocation(employee); } catch { /* The current cabinet remains usable when browser storage is unavailable. */ } }, [employee, profileLoaded]);
-  useEffect(() => { if (!employee) { setDraftLoaded(false); return; } setDraftLoaded(false); setDraftOwner(''); setDayRate(500); setDays(0); setPlan('under'); setServicePlan('basic'); setTechCount(emptyTech()); setAccessorySums(emptyAccessories()); setServiceAmount(0); setServiceCount(0); setRepairProfit(0); setFocusPay(0); setBonusCount(emptyBonuses()); setLastDraftSave(null); setDraftMessage(''); try { let raw = localStorage.getItem(profileDraftKey(employee)); if (!raw) { const legacyRaw = localStorage.getItem(DRAFT_STORAGE_KEY) ?? localStorage.getItem('ipeople-pulse-draft'); if (legacyRaw) { const legacyDraft = JSON.parse(legacyRaw) as CalculatorDraft; if (legacyDraft.employee === employee) raw = legacyRaw; } } if (!raw) return; const draft = JSON.parse(raw) as CalculatorDraft; if (typeof draft.dayRate === 'number') setDayRate(draft.dayRate); if (typeof draft.days === 'number') setDays(draft.days); if (typeof draft.plan === 'string') setPlan(draft.plan); if (typeof draft.servicePlan === 'string') setServicePlan(draft.servicePlan); if (draft.techCount) setTechCount({ ...emptyTech(), ...draft.techCount }); if (draft.accessorySums) setAccessorySums({ ...emptyAccessories(), ...draft.accessorySums }); if (typeof draft.serviceAmount === 'number') setServiceAmount(draft.serviceAmount); if (typeof draft.serviceCount === 'number') setServiceCount(draft.serviceCount); if (typeof draft.repairProfit === 'number') setRepairProfit(draft.repairProfit); if (typeof draft.focusPay === 'number') setFocusPay(draft.focusPay); if (draft.bonusCount) setBonusCount({ ...emptyBonuses(), ...draft.bonusCount }); if (typeof draft.savedAt === 'number') setLastDraftSave(draft.savedAt); } catch { /* A damaged device draft is safely ignored. */ } finally { setDraftOwner(employee); setDraftLoaded(true); } }, [employee]);
-  useEffect(() => { if (!draftLoaded || !employee || draftOwner !== employee) return; try { localStorage.setItem(profileDraftKey(employee), JSON.stringify({ employee, dayRate, days, plan, servicePlan, techCount, accessorySums, serviceAmount, serviceCount, repairProfit, focusPay, bonusCount, savedAt: lastDraftSave ?? undefined } satisfies CalculatorDraft)); } catch { /* Private browsing can block storage; the explicit action will explain it. */ } }, [accessorySums, bonusCount, dayRate, days, draftLoaded, draftOwner, employee, focusPay, lastDraftSave, plan, repairProfit, serviceAmount, serviceCount, servicePlan, techCount]);
-  useEffect(() => { setDayText(new Intl.DateTimeFormat('uk-UA', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date())); }, []);
-  useEffect(() => { setHydrated(true); }, []);
-  const planIndex = plan === 'under' ? 0 : plan === 'target' ? 1 : 2;
-  const serviceRate = servicePlans.find(item => item.value === servicePlan)?.rate ?? 20;
-  const calculations = useMemo(() => {
-    const base = dayRate * days;
-    const techPay = tech.reduce((sum, item) => sum + techCount[`${item.id}-personal`] * item.personal + techCount[`${item.id}-online`] * item.online, 0);
-    const accessoriesPay = accessories.reduce((sum, item) => sum + Math.round(accessorySums[item.id] * item.rates[planIndex] / 100), 0);
-    const servicesPay = Math.round(serviceAmount * serviceRate / 100);
-    const repairsPay = Math.round(repairProfit * 0.05);
-    const bonusPay = bonuses.reduce((sum, item) => sum + bonusCount[item.id] * item.value, 0);
-    const units = Object.values(techCount).reduce((sum, count) => sum + count, 0);
-    const turnover = Object.values(accessorySums).reduce((sum, amount) => sum + amount, 0) + serviceAmount + repairProfit;
-    return { base, techPay, accessoriesPay, servicesPay, repairsPay, focusPay, bonusPay, units, turnover, total: base + techPay + accessoriesPay + servicesPay + repairsPay + focusPay + bonusPay };
-  }, [accessorySums, bonusCount, dayRate, days, focusPay, planIndex, repairProfit, serviceAmount, serviceRate, techCount]);
-  function saveDraft() { try { const savedAt = Date.now(); localStorage.setItem(profileDraftKey(employee), JSON.stringify({ employee, dayRate, days, plan, servicePlan, techCount, accessorySums, serviceAmount, serviceCount, repairProfit, focusPay, bonusCount, savedAt } satisfies CalculatorDraft)); setLastDraftSave(savedAt); setDraftMessage(`Чернетку ${employee} збережено. Вона залишиться тут, доки ви не скинете зміну.`); } catch { setDraftMessage('Не вдалося зберегти на цьому пристрої. Перевірте, чи вимкнений приватний режим браузера.'); } }
-  function changeCount(key: string, value: number, target: 'tech' | 'bonus') { if (target === 'tech') setTechCount(current => ({ ...current, [key]: value })); else setBonusCount(current => ({ ...current, [key]: value })); setSaved(false); }
-  function resetShift() { setDayRate(500); setDays(0); setPlan('under'); setServicePlan('basic'); setTechCount(emptyTech()); setAccessorySums(emptyAccessories()); setServiceAmount(0); setServiceCount(0); setRepairProfit(0); setFocusPay(0); setBonusCount(emptyBonuses()); setSaved(false); setSendMessage(''); setLastDraftSave(null); setDraftMessage(`Дані зміни ${employee} очищено.`); try { localStorage.removeItem(profileDraftKey(employee)); } catch { /* The screen state is still reset. */ } }
-  async function selectMood(mood: Mood) { if (moodSaving) return; setMoodSaving(true); try { const response = await fetch(api('/api/moods'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ employee, mood }) }); const data = await response.json().catch(() => ({})) as Partial<MoodState> & { error?: string }; if (!response.ok) throw new Error(data.error || 'mood-failed'); if (data.moods) setMoods(data.moods); if (data.counts) setMoodCounts(data.counts); } catch (error) { window.alert(error instanceof Error && error.message !== 'mood-failed' ? error.message : 'Не вдалося зберегти настрій. Спробуйте ще раз.'); } finally { setMoodSaving(false); } }
-  async function saveNews(rawMessage: string) { const message = rawMessage.trim().slice(0, 360); if (!message) { setNewsStatus('Напишіть новину для команди.'); return false; } setNewsSaving(true); setNewsStatus(''); try { const response = await fetch(api('/api/news'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message, author: employee }) }); const data = await response.json().catch(() => ({})) as Partial<NewsState> & { error?: string }; if (!response.ok || typeof data.message !== 'string' || typeof data.author !== 'string') throw new Error(data.error || 'news-failed'); const nextNews = { message: data.message, author: data.author, updatedAt: Number(data.updatedAt) || Date.now() }; setNews(nextNews); setNewsStatus('Новину вже бачить команда.'); return true; } catch (error) { setNewsStatus(error instanceof Error && error.message !== 'news-failed' ? error.message : 'Не вдалося оновити дошку. Спробуйте ще раз.'); return false; } finally { setNewsSaving(false); } }
-  async function persistQueue(nextQueue = queue, nextNotifications = notificationsEnabled, nextFrozen = frozenEmployees) {
-    setQueueSaving(true);
-    try {
-      const response = await fetch(api('/api/queue'), { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ queue: nextQueue, notificationsEnabled: nextNotifications, frozenEmployees: nextFrozen }) });
-      const result = await response.json().catch(() => ({})) as Partial<QueueState> & { error?: string };
-      if (!response.ok) throw new Error(result.error || 'save-failed');
-      setQueue(result.queue?.length ? result.queue : nextQueue);
-      setFrozenEmployees(result.frozenEmployees ?? nextFrozen);
-      setNotificationsEnabled(typeof result.notificationsEnabled === 'boolean' ? result.notificationsEnabled : nextNotifications);
-    } catch (error) {
-      window.alert(error instanceof Error && error.message !== 'save-failed' ? error.message : 'Не вдалося зберегти чергу. Спробуйте ще раз.');
-    } finally { setQueueSaving(false); }
-  }
-  async function shuffleQueue() { const next = [...queue]; for (let index = next.length - 1; index > 0; index -= 1) { const target = Math.floor(Math.random() * (index + 1)); [next[index], next[target]] = [next[target], next[index]]; } setQueue(next); await persistQueue(next); }
-  async function activateProfile(rawName: string) { const name = rawName.trim().slice(0, 80); if (!name || unavailableProfiles.has(name)) return; const existing = queue.find(item => item.toLocaleLowerCase() === name.toLocaleLowerCase()); const profileName = existing ?? name; setEmployee(profileName); setQueueActor(profileName); setProfileSelectorOpen(false); setView('calculator'); if (!existing) { const nextQueue = [...queue, profileName]; setQueue(nextQueue); await persistQueue(nextQueue); } }
-  function changeProfile() { setProfileSelectorOpen(true); }
-  function renameQueueMember(index: number, name: string) { setQueue(current => current.map((item, currentIndex) => currentIndex === index ? name : item)); }
-  function addQueueMember() { const name = newQueueName.trim(); if (!name) return; if (queue.some(item => item.toLocaleLowerCase() === name.toLocaleLowerCase())) { window.alert('Ця людина вже є у черзі.'); return; } setQueue(current => [...current, name]); setNewQueueName(''); }
-  function removeQueueMember(index: number) { if (queue.length === 1) { window.alert('У черзі має залишитися хоча б одна людина.'); return; } const removed = queue[index]; setFrozenEmployees(current => current.filter(name => name !== removed)); setQueue(current => current.filter((_, currentIndex) => currentIndex !== index)); }
-  async function updateNotifications(next: boolean) { setNotificationsEnabled(next); await persistQueue(queue, next, frozenEmployees); }
-  async function markApproach() {
-    const current = queue.find(name => !frozenEmployees.includes(name));
-    if (!current || queueSaving) return;
-    setQueueSaving(true);
-    try {
-      const response = await fetch(api('/api/queue'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ employee: current, action: 'approach' }) });
-      const nextState = await response.json().catch(() => ({})) as Partial<QueueState> & { count?: number; error?: string };
-      if (!response.ok) throw new Error(nextState.error || 'mark-failed');
-      if (nextState.queue?.length) setQueue(nextState.queue);
-      if (nextState.frozenEmployees) setFrozenEmployees(nextState.frozenEmployees);
-      if (nextState.approachCounts) setApproachCounts(nextState.approachCounts);
-    } catch (error) {
-      window.alert(error instanceof Error && error.message !== 'mark-failed' ? error.message : 'Не вдалося зберегти підхід. Спробуйте ще раз.');
-    } finally { setQueueSaving(false); }
-  }
-  async function updateLiveQueue(action: 'join' | 'break' | 'freeze' | 'return') {
-    const actor = queueActor;
-    if (!actor || queueSaving) return;
-    const labels = { join: 'Ви стали в чергу.', break: 'Перекур: ви в кінці черги.', freeze: 'Чергу призупинено через робочі потреби.', return: 'Ви повернулися в чергу.' };
-    setQueueSaving(true); setQueueActionMessage('');
-    try {
-      const response = await fetch(api('/api/queue'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ employee: actor, action }) });
-      const nextState = await response.json().catch(() => ({})) as Partial<QueueState> & { error?: string };
-      if (!response.ok) throw new Error(nextState.error || 'action-failed');
-      if (nextState.queue?.length) setQueue(nextState.queue);
-      if (nextState.frozenEmployees) setFrozenEmployees(nextState.frozenEmployees);
-      if (nextState.approachCounts) setApproachCounts(nextState.approachCounts);
-      setQueueActionMessage(labels[action]);
-    } catch (error) { window.alert(error instanceof Error && error.message !== 'action-failed' ? error.message : 'Не вдалося оновити живу чергу. Спробуйте ще раз.'); } finally { setQueueSaving(false); }
-  }
-  async function resetLeaders() { if (!window.confirm('Очистити таблицю лідерів? Усі звіти команди буде видалено.')) return; try { const response = await fetch(api('/api/reports'), { method: 'DELETE' }); if (!response.ok) throw new Error('clear-failed'); setReports([]); localStorage.removeItem('motiva-reports'); window.alert('Таблицю лідерів очищено.'); } catch { window.alert('Не вдалося очистити таблицю. Спробуйте ще раз.'); } }
-  const reportText = useMemo(() => {
-    const techRows = tech.flatMap(item => [
-      techCount[`${item.id}-personal`] ? `• ${item.label}, особистий: ${techCount[`${item.id}-personal`]} шт. — ${money(techCount[`${item.id}-personal`] * item.personal)}` : '',
-      techCount[`${item.id}-online`] ? `• ${item.label}, інтернет: ${techCount[`${item.id}-online`]} шт. — ${money(techCount[`${item.id}-online`] * item.online)}` : '',
-    ]).filter(Boolean);
-    const accessoryRows = accessories.map(item => accessorySums[item.id] ? `• ${item.label}: ${money(accessorySums[item.id])} → ${money(Math.round(accessorySums[item.id] * item.rates[planIndex] / 100))}` : '').filter(Boolean);
-    return [`iPeople PULSE · звіт зміни`, `Дата: ${dayText}`, `Співробітник: ${employee}`, '', `Зміна: ${days} дн. — ${money(calculations.base)}`, `Гаджети: ${calculations.units} шт. — ${money(calculations.techPay)}`, ...techRows, `Послуги: ${serviceCount} шт. · ${money(serviceAmount)} → ${money(calculations.servicesPay)} (${serviceRate}%)`, `Аксесуари: ${money(Object.values(accessorySums).reduce((sum, value) => sum + value, 0))} → ${money(calculations.accessoriesPay)}`, ...accessoryRows, `Ремонти: ${money(repairProfit)} → ${money(calculations.repairsPay)} (5%)`, `Фокусний товар: ${money(focusPay)}`, `Підходи до клієнтів: ${approachCounts[employee] ?? 0}`, `Бонуси: ${money(calculations.bonusPay)}`, '', `В ЗП за зміну: ${money(calculations.total)}`].join('\n');
-  }, [accessorySums, approachCounts, calculations, dayText, days, employee, focusPay, planIndex, repairProfit, serviceAmount, serviceCount, serviceRate, techCount]);
-  const telegramText = useMemo(() => {
-    const techRows = tech.flatMap(item => [
-      techCount[`${item.id}-personal`] ? `• ${item.label} · особистий: <b>${techCount[`${item.id}-personal`]} шт.</b> · ${money(techCount[`${item.id}-personal`] * item.personal)}` : '',
-      techCount[`${item.id}-online`] ? `• ${item.label} · інтернет: <b>${techCount[`${item.id}-online`]} шт.</b> · ${money(techCount[`${item.id}-online`] * item.online)}` : '',
-    ]).filter(Boolean);
-    const accessoryRows = accessories.map(item => accessorySums[item.id] ? `• ${item.label}: ${money(accessorySums[item.id])} → <b>${money(Math.round(accessorySums[item.id] * item.rates[planIndex] / 100))}</b>` : '').filter(Boolean);
-    return [
-      '✨ <b>iPeople PULSE</b>', '<i>ЗВІТ ЗМІНИ</i>', '━━━━━━━━━━━━━━',
-      `📅 <b>${telegramSafe(dayText)}</b>`, `👤 Співробітник: <b>${telegramSafe(employee)}</b>`, '',
-      '💼 <b>НАРАХУВАННЯ</b>', `🗓 Зміна: ${days} дн. · <b>${money(calculations.base)}</b>`,
-      `📱 Гаджети: <b>${calculations.units} шт.</b> · ${money(calculations.techPay)}`, ...techRows,
-      `🛠 Послуги: <b>${serviceCount} шт.</b> · ${money(serviceAmount)} → <b>${money(calculations.servicesPay)}</b> (${serviceRate}%)`,
-      `🎧 Аксесуари: ${money(Object.values(accessorySums).reduce((sum, value) => sum + value, 0))} → <b>${money(calculations.accessoriesPay)}</b>`, ...accessoryRows,
-      `🔧 Ремонти: ${money(repairProfit)} → <b>${money(calculations.repairsPay)}</b> (5%)`, `🎯 Фокусний товар: <b>${money(focusPay)}</b>`, `🎯 Підходи до клієнтів: <b>${approachCounts[employee] ?? 0}</b>`,
-      `🎁 Бонуси: <b>${money(calculations.bonusPay)}</b>`, '', '━━━━━━━━━━━━━━',
-      `💰 <b>В ЗП ЗА ЗМІНУ: ${money(calculations.total)}</b>`, '⚡ <i>iPeople PULSE · мотивація команди</i>',
-    ].filter(Boolean).join('\n');
-  }, [accessorySums, approachCounts, calculations, dayText, days, employee, focusPay, planIndex, repairProfit, serviceAmount, serviceCount, serviceRate, techCount]);
-  function createReport(): DailyReport { const date = new Date().toISOString().slice(0, 10); return { id: `${Date.now()}-${Math.random().toString(36).slice(2)}`, employee, date, base: calculations.base, tech: calculations.techPay, accessories: calculations.accessoriesPay, services: calculations.servicesPay, serviceUnits: serviceCount, repairs: calculations.repairsPay, focus: calculations.focusPay, bonuses: calculations.bonusPay, total: calculations.total, units: calculations.units, turnover: calculations.turnover, approaches: approachCounts[employee] ?? 0 }; }
-  function saveReport(report: DailyReport) { setReports(current => [...current, report]); setSaved(true); }
-  async function sendReport() { setSending(true); setSendMessage(''); const details = createReport(); try { const response = await fetch(api('/api/reports'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ employee, date: details.date, total: calculations.total, text: reportText, telegramText, details }) }); const result = await response.json().catch(() => ({})) as { telegramReady?: boolean; error?: string }; if (!response.ok) throw new Error(result.error || 'send-failed'); try { saveReport(details); } catch { /* Telegram delivery must not depend on this device. */ } setSendMessage(result.telegramReady ? 'Звіт надіслано в Telegram.' : 'Звіт збережено, але Telegram тимчасово недоступний.'); } catch (error) { setSendMessage(error instanceof Error && error.message !== 'send-failed' ? error.message : 'Не вдалося надіслати звіт. Спробуйте ще раз.'); } finally { setSending(false); } }
-  function createPdfReport() { const reportWindow = window.open('', '_blank', 'width=760,height=980'); if (!reportWindow) { setSendMessage('Дозвольте відкрити вікно PDF і спробуйте ще раз.'); return; } const safeText = reportText.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); reportWindow.document.write(`<!doctype html><html lang="uk"><head><meta charset="utf-8"><title>iPeople PULSE - ${employee}</title><style>@page{size:A4;margin:18mm}body{font-family:Arial,sans-serif;color:#101a2d;background:#fff}header{display:flex;align-items:center;gap:12px;border-bottom:3px solid #19dfe8;padding-bottom:16px;margin-bottom:20px}.mark{width:42px;height:42px;display:grid;place-items:center;border-radius:12px;color:#fff;font-weight:800;background:linear-gradient(135deg,#24dfea,#ff4fd8)}h1{font-size:22px;margin:0}p{margin:4px 0;color:#526077}pre{font-family:Arial,sans-serif;font-size:13px;line-height:1.65;white-space:pre-wrap}footer{position:fixed;bottom:0;font-size:10px;color:#74809a}</style></head><body><header><div class="mark">iP</div><div><h1>iPeople PULSE</h1><p>Звіт зміни</p></div></header><pre>${safeText}</pre><footer>iPeople PULSE · сформовано ${new Date().toLocaleString('uk-UA')}</footer></body></html>`); reportWindow.document.close(); window.setTimeout(() => { reportWindow.focus(); reportWindow.print(); }, 250); setSendMessage('Оберіть «Зберегти як PDF» у системному вікні.'); }
-  const leaderboard = [...reports].sort((a, b) => b.total - a.total);
-  if (!hydrated || !profileLoaded) return <main className="cyber-screen grid min-h-screen place-items-center p-6 text-center"><div><div className="cyber-logo mx-auto mb-4 grid size-12 place-items-center rounded-2xl text-xl font-extrabold">iP</div><p className="font-extrabold">Завантажуємо iPeople PULSE…</p></div></main>;
-  if (!employee || profileSelectorOpen) return <ProfileGate people={queue} activeEmployee={employee || undefined} onBack={employee ? () => setProfileSelectorOpen(false) : undefined} onSelect={activateProfile} />;
-  return <main className="cyber-screen min-h-screen"><header className="cyber-header border-b backdrop-blur"><div className="mx-auto flex max-w-[1260px] items-center justify-between px-5 py-4"><div className="flex items-center gap-3"><div className="cyber-logo grid size-10 place-items-center rounded-xl text-xs font-black tracking-tighter">iP</div><div><p className="font-extrabold tracking-tight">iPeople <span className="cyber-pulse">PULSE</span></p><MoodPicker value={moods[employee]} saving={moodSaving} onSelect={selectMood} /></div></div><nav className="cyber-nav flex rounded-xl p-1"><button onClick={() => setView('calculator')} className={`rounded-lg px-3 py-2 text-sm font-bold ${view === 'calculator' ? 'bg-white text-[#246bfd] shadow-sm' : 'text-[#7a8493]'}`}>Калькулятор</button><button onClick={() => setView('leaders')} className={`cyber-leaders-tab rounded-lg px-3 py-2 text-sm font-bold ${view === 'leaders' ? 'bg-white text-[#246bfd] shadow-sm' : 'text-[#7a8493]'}`}><Crown className="size-4" /> Лідери</button><button onClick={() => setView('randomizer')} className={`cyber-randomizer-tab rounded-lg px-3 py-2 text-sm font-bold ${view === 'randomizer' ? 'bg-white text-[#246bfd] shadow-sm' : 'text-[#7a8493]'}`}><Sparkles className="size-4" /> Черга</button></nav></div></header>
-  <div className="mx-auto grid max-w-[1260px] items-center gap-3 px-5 pt-5 sm:grid-cols-[auto_minmax(0,1fr)_auto]"><button type="button" onClick={changeProfile} className="cyber-profile-chip" title="Змінити особистий кабінет"><UserRound className="size-4" /><span>{employee}</span><small>кабінет</small></button><NewsBoard news={news} employee={employee} saving={newsSaving} status={newsStatus} onSave={saveNews} /><p className="cyber-sync-state"><i />{lastSync ? 'Синхронізація активна' : 'Підключаємо синхронізацію…'}</p></div>
-  <div className="mx-auto max-w-[1260px] px-5 py-8"><div className="mb-7 flex flex-wrap items-end justify-between gap-3"><div><p className="mb-1 text-sm font-bold text-[#526fff]">{dayText}</p><h1 className="text-3xl font-extrabold tracking-tight">{view === 'calculator' ? 'Моя мотивація' : view === 'leaders' ? 'Таблиця лідерів' : 'Рандомайзер черги'}</h1></div>{view === 'calculator' ? <button type="button" onClick={resetShift} className="cyber-reset" title="Скинути всі дані зміни" aria-label="Скинути всі дані зміни"><span className="reset-clock"><Clock3 /></span><RotateCcw className="reset-arrow" /></button> : view === 'leaders' ? <button type="button" onClick={resetLeaders} className="cyber-reset cyber-leaders-reset" title="Очистити таблицю лідерів" aria-label="Очистити таблицю лідерів"><span className="reset-clock"><Crown /></span><RotateCcw className="reset-arrow" /></button> : null}</div>
-  {view === 'calculator' ? <div className="space-y-6"><section><h2 className="mb-3 text-xl font-extrabold">Основа</h2><div className="grid gap-3 rounded-3xl bg-[#e9ebf1] p-4 sm:grid-cols-2 lg:grid-cols-5"><Field label="Мій кабінет"><CabinetIdentity employee={employee} onChangeProfile={changeProfile} /></Field><Field label="Ставка за день"><AmountField value={dayRate} onChange={setDayRate} placeholder="0" /></Field><Field label="Відпрацьовані дні"><Stepper value={days} onChange={setDays} /></Field><Field label="План аксесуарів"><Picker value={plan} onChange={setPlan} label="План аксесуарів" options={[{ value: 'under', label: 'Базовий план' }, { value: 'target', label: '70–100% плану' }, { value: 'over', label: 'Понад 100% плану' }]} /></Field><Field label="План послуг"><Picker value={servicePlan} onChange={setServicePlan} label="План послуг" options={servicePlans} /></Field></div></section>
-    <section><div className="mb-3 flex items-center gap-2"><h2 className="text-xl font-extrabold">Техніка</h2><span className="rounded-full bg-[#eaf0ff] px-2.5 py-1 text-xs font-bold text-[#3c5dcb]">кількість продажів</span></div><div className="grid gap-3 rounded-3xl bg-[#e9ebf1] p-4 sm:grid-cols-2 lg:grid-cols-5">{tech.map(item => <div key={item.id} className="rounded-2xl bg-white p-4 shadow-[0_3px_9px_rgb(23_30_45/0.04)]"><p className="min-h-10 text-sm font-extrabold">{item.label}</p><div className="mt-3 space-y-2"><div><p className="mb-1.5 text-xs font-bold text-[#7c8696]">Особистий · {item.personal} грн</p><Stepper compact value={techCount[`${item.id}-personal`]} onChange={value => changeCount(`${item.id}-personal`, value, 'tech')} /></div><div><p className="mb-1.5 text-xs font-bold text-[#7c8696]">Інтернет · {item.online} грн</p><Stepper compact value={techCount[`${item.id}-online`]} onChange={value => changeCount(`${item.id}-online`, value, 'tech')} /></div></div></div>)}</div></section>
-    <section><div className="mb-3 flex flex-wrap items-center justify-between gap-2"><div className="flex items-center gap-2"><h2 className="text-xl font-extrabold">Аксесуари</h2><span className="rounded-full bg-[#eaf0ff] px-2.5 py-1 text-xs font-bold text-[#3c5dcb]">введіть оборот за категоріями</span></div><p className="text-sm font-bold text-[#526fff]">Поточна ставка: {plan === 'under' ? 'базовий план' : plan === 'target' ? '70–100%' : 'понад 100%'}</p></div><div className="grid gap-3 rounded-3xl bg-[#e9ebf1] p-4 sm:grid-cols-2 lg:grid-cols-5">{accessories.map(item => <div key={item.id} className="rounded-2xl bg-white p-4"><p className="min-h-10 text-sm font-extrabold">{item.label}</p><p className="mb-3 text-xs font-bold text-[#6976a0]">{item.rates[planIndex]}% у зарплату</p><AmountField value={accessorySums[item.id]} onChange={value => { setAccessorySums(current => ({ ...current, [item.id]: value })); setSaved(false); }} placeholder="0" /></div>)}</div></section>
-    <section className="grid gap-6 lg:grid-cols-[1fr_360px]"><div className="rounded-3xl bg-[#e9ebf1] p-4"><div className="grid gap-4 md:grid-cols-3"><div className="rounded-2xl bg-white p-5"><h2 className="text-xl font-extrabold">Бонуси</h2><div className="mt-4 space-y-3">{bonuses.map(item => <div key={item.id} className="flex items-center justify-between gap-3"><div><p className="text-sm font-bold">{item.label}</p><p className="text-xs text-[#798394]">{money(item.value)} за 1</p></div><Stepper compact value={bonusCount[item.id]} onChange={value => changeCount(item.id, value, 'bonus')} /></div>)}</div></div><ServiceCard amount={serviceAmount} count={serviceCount} rate={serviceRate} onChange={value => { setServiceAmount(value); setSaved(false); }} onCountChange={value => { setServiceCount(value); setSaved(false); }} /><div className="rounded-2xl bg-[#183458] p-5 text-white"><div className="flex items-center gap-3"><div className="grid size-10 place-items-center rounded-xl bg-white/12"><Wrench className="size-5 text-[#8fb8ff]" /></div><div><h2 className="font-extrabold">Ремонти вручну</h2><p className="text-sm text-[#b9cae4]">Впишіть чистий прибуток з ремонтів</p></div></div><div className="mt-5"><label className="text-sm font-bold text-[#cfddf3]">Чистий прибуток з ремонтів</label><div className="relative mt-2"><Input inputMode="numeric" value={repairProfit || ''} onChange={e => { setRepairProfit(Number(e.target.value.replace(/\D/g, '')) || 0); setSaved(false); }} placeholder="0" className="h-14 rounded-xl border-0 bg-white px-4 pr-12 text-right text-xl font-extrabold text-[#1b202a]" /><span className="absolute right-4 top-4 text-sm font-bold text-[#778396]">грн</span></div></div><div className="mt-4 flex items-center justify-between border-t border-white/15 pt-4"><span className="text-sm font-semibold text-[#b9cae4]">5% у зарплату</span><span className="text-xl font-extrabold">{money(calculations.repairsPay)}</span></div></div></div><FocusCard value={focusPay} onChange={value => { setFocusPay(value); setSaved(false); }} /></div><Summary calculation={calculations} onSave={saveDraft} lastDraftSave={lastDraftSave} draftMessage={draftMessage} onSend={sendReport} onPdf={createPdfReport} sending={sending} sendMessage={sendMessage} /></section>
-  </div> : view === 'leaders' ? <Leaders reports={leaderboard} moodCounts={moodCounts} /> : <QueueRandomizer queue={queue} frozenEmployees={frozenEmployees} approachCounts={approachCounts} notificationsEnabled={notificationsEnabled} newQueueName={newQueueName} queueSaving={queueSaving} actor={queueActor} liveMessage={queueActionMessage} onActorChange={setQueueActor} onLiveAction={updateLiveQueue} onShuffle={shuffleQueue} onMarkApproach={markApproach} onSaveQueue={() => persistQueue()} onRename={renameQueueMember} onAdd={addQueueMember} onRemove={removeQueueMember} onNewQueueNameChange={setNewQueueName} onNotificationsChange={updateNotifications} />}</div></main>;
-}
+  const [state, setState] = useState<"checking" | "guest" | "ready">("checking");
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) { return <label className="grid gap-2 text-sm font-bold text-[#5b6472]"><span>{label}</span>{children}</label>; }
-function CabinetIdentity({ employee, onChangeProfile }: { employee: string; onChangeProfile: () => void }) {
-  return <div className="cyber-cabinet-identity">
-    <div className="cyber-cabinet-person">
-      <span className="cyber-cabinet-avatar"><UserRound className="size-4" /></span>
-      <div><strong>{employee}</strong><small>Особистий кабінет</small></div>
-    </div>
-    <button type="button" onClick={onChangeProfile} className="cyber-cabinet-change">Змінити</button>
-  </div>;
+  useEffect(() => {
+    void fetch("/api/auth/session", { credentials: "same-origin" })
+      .then((response) => response.ok ? response.json() : { authenticated: false })
+      .then((body: { authenticated?: boolean }) => setState(body.authenticated ? "ready" : "guest"))
+      .catch(() => setState("guest"));
+  }, []);
+
+  if (state === "checking") return <main className="login-shell"><p className="login-check">Проверяем доступ…</p></main>;
+  if (state === "guest") return <LoginGate onAuthenticated={() => setState("ready")} />;
+  return <Dashboard />;
 }
-function NewsBoard({ news, employee, saving, status, onSave }: { news: NewsState; employee: string; saving: boolean; status: string; onSave: (message: string) => Promise<boolean> }) {
-  const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState(news.message);
-  useEffect(() => { if (!editing) setDraft(news.message); }, [editing, news.message]);
-  const updatedLabel = news.updatedAt ? new Intl.DateTimeFormat('uk-UA', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }).format(news.updatedAt) : 'додай свою новину';
-  const save = async () => { if (await onSave(draft)) setEditing(false); };
-  return <section className={`neon-news-board ${editing ? 'neon-news-board-editing' : ''}`} aria-label="Новини команди"><div className="neon-news-beacon"><Sparkles className="size-5" /></div><div className="neon-news-main"><div className="neon-news-kicker"><span>Новини</span><small>{news.updatedAt ? `від ${news.author} · ${updatedLabel}` : updatedLabel}</small></div>{editing ? <textarea autoFocus value={draft} onChange={event => setDraft(event.target.value.slice(0, 360))} className="neon-news-editor" aria-label="Новина для команди" placeholder="Напишіть важливу новину для команди…" maxLength={360} rows={3} /> : <p className="neon-news-message">{news.message}</p>}{editing && <div className="neon-news-actions"><button type="button" onClick={() => { setDraft(news.message); setEditing(false); }} className="neon-news-cancel">Скасувати</button><Button type="button" disabled={saving || !draft.trim()} onClick={() => void save()} className="neon-news-save h-9 rounded-xl px-3"><Save className="size-4" />{saving ? 'Зберігаємо…' : 'Опублікувати'}</Button></div>}{status && <p className="neon-news-status" role="status">{status}</p>}</div>{!editing && <button type="button" onClick={() => setEditing(true)} className="neon-news-edit" aria-label="Змінити новину для команди" title="Змінити новину"><Pencil className="size-4" /><span>Написати</span></button>}</section>;
-}
-function ProfileGate({ people, activeEmployee, onBack, onSelect }: { people: string[]; activeEmployee?: string; onBack?: () => void; onSelect: (name: string) => Promise<void> }) {
-  const [customName, setCustomName] = useState('');
-  const [starting, setStarting] = useState(false);
-  const choose = async (name: string) => {
-    if (!name.trim() || starting) return;
-    setStarting(true);
-    try { await onSelect(name); } finally { setStarting(false); }
-  };
-  const uniquePeople = [...new Set(people.map(person => person.trim()).filter(Boolean))];
-  return <main className="cyber-screen profile-gate grid min-h-screen place-items-center p-5 sm:p-8">
-    <section className="profile-gate-card w-full max-w-2xl rounded-[2rem] p-6 sm:p-10">
-      {onBack && <button type="button" onClick={onBack} className="profile-gate-back" aria-label="Повернутися до мого кабінету" title="Повернутися до кабінету"><ArrowLeft className="size-5" /></button>}
-      <div className="profile-gate-mark mx-auto grid size-16 place-items-center rounded-3xl text-xl font-black">iP</div>
-      <p className="mt-6 text-center text-sm font-extrabold tracking-[.18em] text-[#75f7ff]">IPEOPLE PULSE</p>
-      <h1 className="mt-2 text-center text-3xl font-black tracking-tight sm:text-4xl">Мій кабінет</h1>
-      <p className="mx-auto mt-3 max-w-md text-center text-base text-[#a9bfdd]">{activeEmployee ? `Зараз відкритий кабінет: ${activeEmployee}. Щоб перейти до іншого, оберіть його нижче.` : 'Оберіть свій кабінет. Калькулятор, чернетка та звіт будуть прив’язані до вашого імені.'}</p>
-      <div className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-3">{uniquePeople.map(person => <button type="button" key={person} disabled={starting} onClick={() => void choose(person)} className="profile-person rounded-2xl px-4 py-4 text-left font-extrabold"><UserRound className="size-5" /><span>{person}</span></button>)}</div>
-      <div className="profile-custom mt-5 rounded-2xl p-3">
-        <label className="text-sm font-bold text-[#d7edff]">Немає в списку?</label>
-        <div className="mt-2 flex flex-col gap-2 sm:flex-row"><Input value={customName} onChange={event => setCustomName(event.target.value)} onKeyDown={event => { if (event.key === 'Enter') void choose(customName); }} placeholder="Впишіть своє ім’я" className="h-12 border-0 bg-[#061426] px-4 font-bold text-white placeholder:text-[#7790ae]" /><Button disabled={starting || !customName.trim()} onClick={() => void choose(customName)} className="profile-start h-12 rounded-xl px-5"><Sparkles /> {starting ? 'Підключаємо…' : 'Почати зміну'}</Button></div>
-      </div>
-      <p className="mt-5 text-center text-xs font-semibold text-[#86a7c4]">Чернетка лишається у вашому кабінеті, доки ви самі не скинете зміну.</p>
-    </section>
-  </main>;
-}
-function MoodPicker({ value, saving, onSelect }: { value?: Mood; saving: boolean; onSelect: (mood: Mood) => void }) { return <div className="mood-picker" aria-label="Настрій за сьогодні">{moodOptions.map(option => <button key={option.value} type="button" disabled={saving} onClick={() => onSelect(option.value)} className={`mood-choice ${value === option.value ? 'mood-choice-active' : ''}`} title={option.label} aria-label={`Настрій: ${option.label}`} aria-pressed={value === option.value}><span>{option.emoji}</span><em>{option.label}</em></button>)}</div>; }
-function ServiceCard({ amount, count, rate, onChange, onCountChange }: { amount: number; count: number; rate: number; onChange: (value: number) => void; onCountChange: (value: number) => void }) { const pay = Math.round(amount * rate / 100); return <div className="rounded-2xl bg-[#183458] p-5 text-white"><div className="flex items-center gap-3"><div className="grid size-10 place-items-center rounded-xl bg-white/12"><Settings2 className="size-5 text-[#8fb8ff]" /></div><div><h2 className="font-extrabold">Послуги</h2><p className="text-sm text-[#b9cae4]">Впишіть суму послуг за зміну</p></div></div><div className="mt-5 grid gap-3"><label className="text-sm font-bold text-[#cfddf3]">Кількість послуг<Stepper compact value={count} onChange={onCountChange} /></label><label className="text-sm font-bold text-[#cfddf3]">Сума послуг<div className="relative mt-2"><Input inputMode="numeric" value={amount || ''} onChange={e => onChange(Number(e.target.value.replace(/\D/g, '')) || 0)} placeholder="0" className="h-14 rounded-xl border-0 bg-white px-4 pr-12 text-right text-xl font-extrabold text-[#1b202a]" /><span className="absolute right-4 top-4 text-sm font-bold text-[#778396]">грн</span></div></label></div><div className="mt-4 flex items-center justify-between border-t border-white/15 pt-4"><span className="text-sm font-semibold text-[#b9cae4]">{rate}% у зарплату</span><span className="text-xl font-extrabold">{money(pay)}</span></div></div>; }
-function FocusCard({ value, onChange }: { value: number; onChange: (value: number) => void }) { return <div className="cyber-focus-card mt-4 rounded-2xl p-5 text-white"><div className="flex items-center gap-3"><div className="grid size-10 place-items-center rounded-xl bg-white/10"><Target className="size-5 text-[#e7b6ff]" /></div><div><h2 className="font-extrabold">Фокусний товар</h2><p className="text-sm text-[#d8b9e9]">Впишіть вручну чистий заробіток за товар</p></div></div><div className="mt-5"><label className="text-sm font-bold text-[#f0d9ff]">Нарахування в ЗП<div className="relative mt-2"><Input inputMode="numeric" value={value || ''} onChange={event => onChange(Number(event.target.value.replace(/\D/g, '')) || 0)} placeholder="0" className="h-14 rounded-xl border-0 bg-white px-4 pr-12 text-right text-xl font-extrabold text-[#1b202a]" /><span className="absolute right-4 top-4 text-sm font-bold text-[#778396]">грн</span></div></label></div><div className="mt-4 flex items-center justify-between border-t border-white/15 pt-4"><span className="text-sm font-semibold text-[#d8b9e9]">Додається одразу в зарплату</span><span className="text-xl font-extrabold">{money(value)}</span></div></div>; }
-function Summary({ calculation, onSave, lastDraftSave, draftMessage, onSend, onPdf, sending, sendMessage }: { calculation: { base: number; techPay: number; accessoriesPay: number; servicesPay: number; repairsPay: number; focusPay: number; bonusPay: number; total: number }; onSave: () => void; lastDraftSave: number | null; draftMessage: string; onSend: () => void; onPdf: () => void; sending: boolean; sendMessage: string }) { const rows = [['Ставка', calculation.base], ['Техніка', calculation.techPay], ['Аксесуари', calculation.accessoriesPay], ['Послуги', calculation.servicesPay], ['Ремонти · 5%', calculation.repairsPay], ['Фокусний товар', calculation.focusPay], ['Бонуси', calculation.bonusPay]]; const savedAt = lastDraftSave ? new Intl.DateTimeFormat('uk-UA', { hour: '2-digit', minute: '2-digit' }).format(lastDraftSave) : ''; return <aside className="rounded-3xl bg-white p-6 shadow-[0_12px_35px_rgb(23_30_45/0.08)]"><div className="flex items-center gap-3"><div className="grid size-10 place-items-center rounded-xl bg-[#eaf0ff] text-[#246bfd]"><ReceiptText className="size-5" /></div><div><h2 className="font-extrabold">Підсумок зміни</h2><p className="text-sm text-[#7a8493]">Нарахування за сьогодні</p></div></div><div className="mt-5 space-y-3">{rows.map(([label, value]) => <div key={String(label)} className="flex justify-between text-sm"><span className="text-[#697483]">{label}</span><span className="font-bold">{money(Number(value))}</span></div>)}</div><div className="mt-5 border-t border-[#e8ebf1] pt-5"><p className="text-sm font-bold text-[#697483]">Разом до зарплати</p><p className="mt-1 text-4xl font-extrabold tracking-tight text-[#246bfd]">{money(calculation.total)}</p></div><Button onClick={onSave} className="cyber-draft-save mt-6 h-11 w-full rounded-xl"><Save /> Зберегти чернетку</Button><p className="cyber-draft-note mt-2 text-center text-xs font-semibold">{draftMessage || (savedAt ? `Чернетку збережено о ${savedAt}` : 'Збережіть чернетку, щоб продовжити заповнення пізніше.')}</p><Button disabled={sending} onClick={onSend} className="mt-3 h-11 w-full rounded-xl bg-[#246bfd] hover:bg-[#1759da]"><Check /> {sending ? 'Надсилаємо…' : 'Відправити звіт'}</Button>{sendMessage && <p className="mt-3 text-center text-sm font-semibold text-[#526fff]">{sendMessage}</p>}<Button variant="outline" onClick={onPdf} className="cyber-pdf mt-2 h-11 w-full rounded-xl"><FileDown /> Створити PDF-звіт</Button></aside>; }
-function Leaders({ reports, moodCounts }: { reports: DailyReport[]; moodCounts: Record<Mood, number> }) { const best = reports[0]; return <div className="space-y-6"><section className="grid gap-4 sm:grid-cols-3"><Stat tone="crown" icon={<Crown />} label="Лідер за зарплатою" value={best?.employee ?? '—'} /><Stat tone="chart" icon={<BarChart3 />} label="Звітів за сьогодні" value={String(reports.length)} /><Stat tone="reports" icon={<ClipboardCheck />} label="Нараховано команді" value={money(reports.reduce((sum, x) => sum + x.total, 0))} /></section><TeamMood moodCounts={moodCounts} /><section className="overflow-hidden rounded-3xl border border-[#e2e6ee] bg-white shadow-[0_10px_30px_rgb(23_30_45/0.04)]"><div className="px-6 py-5"><h2 className="text-xl font-extrabold">Мотиваційна таблиця</h2><p className="mt-1 text-sm text-[#7a8493]">Кожен зберігає свій підсумок наприкінці зміни.</p></div><div className="overflow-x-auto"><table className="w-full min-w-[620px] text-left text-sm"><thead className="bg-[#f4f6f9] text-xs uppercase tracking-wide text-[#778292]"><tr><th className="px-6 py-3">Місце</th><th className="px-4 py-3">Співробітник</th><th className="px-4 py-3 text-right">Техніка, шт</th><th className="px-4 py-3 text-right">Ремонти</th><th className="px-6 py-3 text-right">Нараховано</th></tr></thead><tbody>{reports.length ? reports.map((report, index) => <tr key={report.id} className="border-t border-[#edf0f4]"><td className="px-6 py-5 font-extrabold text-[#526fff]">#{index + 1}</td><td className="px-4 py-5 font-extrabold">{report.employee}</td><td className="px-4 py-5 text-right">{report.units}</td><td className="px-4 py-5 text-right">{money(report.repairs)}</td><td className="px-6 py-5 text-right font-extrabold text-[#246bfd]">{money(report.total)}</td></tr>) : <tr><td colSpan={5} className="px-6 py-12 text-center text-[#7a8493]">Ще немає збережених звітів.</td></tr>}</tbody></table></div></section><SalaryChart reports={reports} /></div>; }
-function SalaryChart({ reports }: { reports: DailyReport[] }) { const dates = [...new Set(reports.map(report => report.date))].sort().slice(-14); const employees = [...new Set(reports.map(report => report.employee))]; const totals = reports.reduce<Record<string, number>>((all, report) => ({ ...all, [`${report.date}|${report.employee}`]: (all[`${report.date}|${report.employee}`] ?? 0) + report.total }), {}); const max = Math.max(1, ...Object.values(totals)); const width = 760; const height = 290; const left = 54; const right = 18; const top = 20; const bottom = 40; const plotWidth = width - left - right; const plotHeight = height - top - bottom; const x = (index: number) => left + (dates.length < 2 ? plotWidth / 2 : index * plotWidth / (dates.length - 1)); const y = (value: number) => top + plotHeight - value / max * plotHeight; const colors = ['#44f6ff', '#ff4fd8', '#ffd55f', '#9c7cff', '#61efac', '#ff8c64', '#78a7ff']; return <section className="salary-chart rounded-3xl p-5 sm:p-6"><div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-sm font-bold text-[#75f7ff]">Динаміка</p><h2 className="mt-1 text-xl font-extrabold">Зарплата команди за днями</h2><p className="mt-1 text-sm text-[#8fa7bc]">Кожна лінія — сума звітів працівника за день.</p></div><div className="salary-chart-max">Максимум: {money(max)}</div></div>{dates.length ? <><div className="mt-5 overflow-x-auto"><svg className="min-w-[620px]" viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Графік зарплати команди"><defs>{colors.map((color, index) => <filter key={color} id={`glow-${index}`}><feGaussianBlur stdDeviation="3" result="blur" /><feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge></filter>)}</defs>{[0, .25, .5, .75, 1].map(level => <g key={level}><line x1={left} x2={width - right} y1={top + plotHeight * level} y2={top + plotHeight * level} className="salary-grid" /><text x={4} y={top + plotHeight * level + 4} className="salary-axis">{Math.round(max * (1 - level) / 100) * 100}</text></g>)}{dates.map((date, index) => <text key={date} x={x(index)} y={height - 13} textAnchor="middle" className="salary-axis">{date.slice(5).replace('-', '.')}</text>)}{employees.map((employeeName, employeeIndex) => { const color = colors[employeeIndex % colors.length]; const points = dates.map((date, index) => `${x(index)},${y(totals[`${date}|${employeeName}`] ?? 0)}`).join(' '); return <g key={employeeName}><polyline points={points} fill="none" stroke={color} strokeWidth="3" filter={`url(#glow-${employeeIndex % colors.length})`} /><title>{employeeName}</title>{dates.map((date, index) => <circle key={date} cx={x(index)} cy={y(totals[`${date}|${employeeName}`] ?? 0)} r="4" fill={color} />)}</g>; })}</svg></div><div className="mt-4 flex flex-wrap gap-x-4 gap-y-2">{employees.map((employeeName, index) => <span key={employeeName} className="salary-legend"><i style={{ backgroundColor: colors[index % colors.length] }} />{employeeName}</span>)}</div></> : <div className="salary-empty mt-5">Після перших звітів тут з’явиться графік кожного співробітника.</div>}</section>; }
-function TeamMood({ moodCounts }: { moodCounts: Record<Mood, number> }) { const total = moodCounts.low + moodCounts.okay + moodCounts.great; const score = total ? (moodCounts.low + moodCounts.okay * 2 + moodCounts.great * 3) / total : 0; const state = !total ? 'Ще немає оцінок' : score < 1.67 ? 'Поганий' : score < 2.34 ? 'Середній' : 'Відмінний'; const max = Math.max(1, moodCounts.low, moodCounts.okay, moodCounts.great); return <section className="team-mood rounded-3xl p-5 sm:p-6"><div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-sm font-bold text-[#75f7ff]">Сьогодні</p><h2 className="mt-1 text-xl font-extrabold">Настрій команди</h2><p className="mt-1 text-sm text-[#8fa7bc]">Кожен обирає один настрій за свою зміну.</p></div><div className="mood-status"><span>{total ? '⚡' : '○'}</span><b>{state}</b><small>{total} {total === 1 ? 'голос' : 'голосів'}</small></div></div><div className="mt-6 grid gap-4 sm:grid-cols-3">{moodOptions.map(option => <div key={option.value} className={`mood-bar mood-bar-${option.value}`}><div className="flex items-center justify-between gap-3"><span className="text-2xl">{option.emoji}</span><strong>{moodCounts[option.value]}</strong></div><p>{option.label}</p><div className="mood-track"><i style={{ width: `${Math.max(0, moodCounts[option.value] / max * 100)}%` }} /></div></div>)}</div></section>; }
-function QueueRandomizer({ queue, frozenEmployees, approachCounts, notificationsEnabled, newQueueName, queueSaving, actor, liveMessage, onActorChange, onLiveAction, onShuffle, onMarkApproach, onSaveQueue, onRename, onAdd, onRemove, onNewQueueNameChange, onNotificationsChange }: { queue: string[]; frozenEmployees: string[]; approachCounts: Record<string, number>; notificationsEnabled: boolean; newQueueName: string; queueSaving: boolean; actor: string; liveMessage: string; onActorChange: (value: string) => void; onLiveAction: (action: 'join' | 'break' | 'freeze' | 'return') => void; onShuffle: () => void; onMarkApproach: () => void; onSaveQueue: () => void; onRename: (index: number, value: string) => void; onAdd: () => void; onRemove: (index: number) => void; onNewQueueNameChange: (value: string) => void; onNotificationsChange: (value: boolean) => void }) {
-  const next = queue.find(name => !frozenEmployees.includes(name));
-  return <section className="cyber-queue rounded-3xl border border-[#e2e6ee] bg-white p-5 sm:p-8">
-    <div className="grid gap-5 lg:grid-cols-[1.1fr_.9fr]">
-      <div className="cyber-queue-next rounded-3xl p-5 sm:p-6">
-        <div className="flex items-start gap-3"><div className="cyber-queue-icon grid size-11 shrink-0 place-items-center rounded-2xl"><Clock3 className="size-5" /></div><div><p className="text-sm font-bold text-[#8ea4bd]">Наступний у черзі</p><h2 className="mt-1 text-3xl font-black tracking-tight">{next ?? 'Черга порожня'}</h2><p className="mt-2 text-sm text-[#a8b9cf]">Після відмітки людина автоматично переходить у кінець списку.</p></div></div>
-        <Button disabled={!next || queueSaving} onClick={onMarkApproach} className="cyber-queue-button mt-6 h-12 w-full rounded-xl"><Check /> {queueSaving ? 'Зберігаємо…' : 'Позначити підхід до клієнта'}</Button>
-      </div>
-      <div className="cyber-queue-notification rounded-3xl p-5 sm:p-6"><div className="flex items-start justify-between gap-4"><div className="flex gap-3"><div className="grid size-10 shrink-0 place-items-center rounded-xl bg-white/10 text-[#3deaf1]">{notificationsEnabled ? <Bell className="size-5" /> : <BellOff className="size-5" />}</div><div><h2 className="font-extrabold">Оповіщення в Telegram</h2><p className="mt-1 text-sm text-[#a8b9cf]">Надсилати повідомлення після кожного підходу.</p></div></div><button type="button" aria-pressed={notificationsEnabled} aria-label="Увімкнути або вимкнути оповіщення" onClick={() => onNotificationsChange(!notificationsEnabled)} disabled={queueSaving} className={`cyber-toggle ${notificationsEnabled ? 'cyber-toggle-on' : ''}`}><span /></button></div><p className="mt-6 text-xs font-bold tracking-wide text-[#6d86a5]">{notificationsEnabled ? 'УВІМКНЕНО · АДМІН @Afkk1ng ОТРИМУЄ ПОВІДОМЛЕННЯ' : 'ВИМКНЕНО · ВІДМІТКИ ЛИШАЮТЬСЯ У ЧЕРЗІ'}</p></div>
-    </div>
-    <div className="mt-6 rounded-3xl border border-[#17466a] bg-[#07182d]/75 p-4 sm:p-6"><div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-xl font-extrabold">Список черги</h2><p className="mt-1 text-sm text-[#8ea4bd]">Відредагуйте команду та збережіть один спільний порядок для всіх.</p></div><Button disabled={queueSaving} onClick={onSaveQueue} variant="outline" className="cyber-queue-save h-11 rounded-xl"><ClipboardCheck /> {queueSaving ? 'Зберігаємо…' : 'Зберегти список'}</Button></div><div className="mt-5 grid gap-3 md:grid-cols-2">{queue.map((name, index) => <div key={`${name}-${index}`} className={`cyber-queue-editor flex items-center gap-3 rounded-2xl p-3 ${index === 0 ? 'cyber-queue-first' : ''}`}><span className="grid size-8 shrink-0 place-items-center rounded-lg text-sm font-black">{index + 1}</span><Input value={name} onChange={event => onRename(index, event.target.value)} aria-label={`Співробітник у черзі №${index + 1}`} className="h-10 border-0 bg-transparent px-1 font-extrabold text-white shadow-none focus-visible:ring-0" /><span className="hidden whitespace-nowrap text-xs font-bold text-[#4ee6ee] sm:inline">{approachCounts[name] ?? 0} підходів</span><button type="button" onClick={() => onRemove(index)} aria-label={`Прибрати ${name} з черги`} className="grid size-9 shrink-0 place-items-center rounded-xl text-[#8ea4bd] transition hover:bg-[#2a1645] hover:text-[#ff70d9]"><Trash2 className="size-4" /></button></div>)}</div><div className="mt-4 flex flex-col gap-3 sm:flex-row"><Input value={newQueueName} onChange={event => onNewQueueNameChange(event.target.value)} onKeyDown={event => { if (event.key === 'Enter') onAdd(); }} placeholder="Додати співробітника до черги" className="h-11 rounded-xl border border-[#17466a] bg-[#061426] px-4 font-semibold text-white placeholder:text-[#68809d]" /><Button onClick={onAdd} variant="outline" className="cyber-queue-save h-11 shrink-0 rounded-xl"><ListPlus /> Додати</Button></div></div>
-    <div className="mt-6 flex flex-col gap-5 rounded-3xl border border-[#2b1d59] bg-[linear-gradient(110deg,#10184a,#37113e)] p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6"><div className="flex items-center gap-3"><div className="grid size-11 place-items-center rounded-2xl bg-[#f2b94b]/15 text-[#ffd35a]"><Sparkles className="size-5" /></div><div><h2 className="text-xl font-extrabold">Чесний рандомайзер на ранок</h2><p className="mt-1 text-sm text-[#bcaed3]">Визначте стартовий порядок перед початком зміни — без ручного вибору.</p></div></div><Button disabled={queueSaving || queue.length < 2} onClick={onShuffle} className="cyber-queue-button h-12 shrink-0 rounded-xl px-5"><Sparkles /> Чесно перемішати</Button></div>
-    <LiveQueue queue={queue} frozenEmployees={frozenEmployees} actor={actor} next={next} saving={queueSaving} message={liveMessage} onActorChange={onActorChange} onAction={onLiveAction} />
-  </section>;
-}
-function LiveQueue({ queue, frozenEmployees, actor, next, saving, message, onAction }: { queue: string[]; frozenEmployees: string[]; actor: string; next?: string; saving: boolean; message: string; onActorChange: (value: string) => void; onAction: (action: 'join' | 'break' | 'freeze' | 'return') => void }) { const paused = frozenEmployees.includes(actor); return <section className="live-queue mt-6 rounded-3xl p-5 sm:p-6"><div className="flex flex-wrap items-start justify-between gap-4"><div className="flex gap-3"><div className="live-queue-orb grid size-11 shrink-0 place-items-center rounded-2xl"><Clock3 className="size-5" /></div><div><p className="text-sm font-bold text-[#75f7ff]">Після рандомайзера</p><h2 className="mt-1 text-xl font-extrabold">Жива черга</h2><p className="mt-1 text-sm text-[#a9bfdd]">Дії одразу прив’язані до вашого профілю, а бот повідомляє адміністратора.</p></div></div><div className="live-next"><small>Зараз черга у</small><b>{next ?? 'Усі на паузі'}</b><em>{next ? 'Наступний підхід' : 'Поверніть когось у чергу'}</em></div></div><div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto]"><div className="live-profile"><p className="text-xs font-bold text-[#86a7c4]">Ви виконуєте дію як</p><div><UserRound className="size-5" /><b>{actor}</b></div></div><div className="live-queue-state"><span>{paused ? '⏸' : '⚡'}</span><b>{paused ? 'Робочі потреби' : 'У черзі'}</b></div></div><div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4"><Button disabled={saving} onClick={() => onAction('join')} className="live-action live-action-join h-12 rounded-xl"><ListPlus /> Стати в чергу</Button><Button disabled={saving} onClick={() => onAction('break')} variant="outline" className="live-action live-action-break h-12 rounded-xl"><Coffee /> Перекур</Button><Button disabled={saving || paused} onClick={() => onAction('freeze')} variant="outline" className="live-action live-action-freeze h-12 rounded-xl"><BriefcaseBusiness /> Робочі потреби</Button><Button disabled={saving || !paused} onClick={() => onAction('return')} variant="outline" className="live-action live-action-return h-12 rounded-xl"><CirclePlay /> Повернувся</Button></div><div className="mt-5 flex flex-wrap gap-2">{queue.map((name, index) => <span key={name} className={`live-queue-chip ${frozenEmployees.includes(name) ? 'live-queue-chip-paused' : index === queue.findIndex(item => !frozenEmployees.includes(item)) ? 'live-queue-chip-next' : ''}`}><i>{index + 1}</i>{name}{frozenEmployees.includes(name) && <small>пауза</small>}</span>)}</div>{message && <p className="live-queue-message mt-4">✓ {message}</p>}</section>; }
-function Stat({ icon, label, value, tone }: { icon: React.ReactNode; label: string; value: string; tone: 'crown' | 'chart' | 'reports' }) { return <div className={`cyber-stat cyber-stat-${tone} rounded-3xl border border-[#e2e6ee] bg-white p-5`}><div className="cyber-stat-icon grid size-10 place-items-center rounded-xl bg-[#eaf0ff] text-[#246bfd]">{icon}</div><p className="mt-5 text-sm font-bold text-[#7a8493]">{label}</p><p className="mt-1 text-2xl font-extrabold">{value}</p></div>; }

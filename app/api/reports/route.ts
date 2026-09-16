@@ -1,4 +1,5 @@
 import { env } from 'cloudflare:workers';
+import { requireApiAuth } from '@/lib/auth';
 
 export const runtime = 'edge';
 
@@ -17,15 +18,14 @@ type RuntimeEnv = {
   TELEGRAM_CHAT_ID?: string;
 };
 
-const corsHeaders = { 'Access-Control-Allow-Origin': 'https://afkk1ng.github.io', 'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type', Vary: 'Origin' };
 function json(body: unknown, status = 200) {
-  return Response.json(body, { status, headers: { 'Cache-Control': 'no-store', ...corsHeaders } });
+  return Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } });
 }
-export function OPTIONS() { return new Response(null, { status: 204, headers: corsHeaders }); }
 
 function number(value: unknown) { return typeof value === 'number' && Number.isFinite(value) ? value : 0; }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const denied = await requireApiAuth(request); if (denied) return denied;
   const runtime = env as unknown as RuntimeEnv;
   try {
     const result = await runtime.DB.prepare('SELECT id, employee, shift_date, total_pay, payload FROM reports ORDER BY submitted_at DESC LIMIT 100').run<{ id: string; employee: string; shift_date: string; total_pay: number; payload: string }>();
@@ -38,7 +38,8 @@ export async function GET() {
   } catch { return json([], 200); }
 }
 
-export async function DELETE() {
+export async function DELETE(request: Request) {
+  const denied = await requireApiAuth(request); if (denied) return denied;
   const runtime = env as unknown as RuntimeEnv;
   try {
     await runtime.DB.prepare('DELETE FROM reports').run();
@@ -47,6 +48,7 @@ export async function DELETE() {
 }
 
 export async function POST(request: Request) {
+  const denied = await requireApiAuth(request); if (denied) return denied;
   let report: ReportPayload;
   try {
     report = await request.json();

@@ -1,4 +1,5 @@
 import { env } from 'cloudflare:workers';
+import { requireApiAuth } from '@/lib/auth';
 
 export const runtime = 'edge';
 
@@ -10,21 +11,21 @@ const defaultNews: NewsState = {
   author: 'iPeople PULSE',
   updatedAt: 0,
 };
-const corsHeaders = { 'Access-Control-Allow-Origin': 'https://afkk1ng.github.io', 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type', Vary: 'Origin' };
-const json = (body: unknown, status = 200) => Response.json(body, { status, headers: { 'Cache-Control': 'no-store', ...corsHeaders } });
-export function OPTIONS() { return new Response(null, { status: 204, headers: corsHeaders }); }
+const json = (body: unknown, status = 200) => Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } });
 
 async function readNews(database: D1Database): Promise<NewsState> {
   const result = await database.prepare("SELECT message, author, updated_at FROM team_news WHERE id = 'board'").first<{ message: string; author: string; updated_at: number }>();
   return result ? { message: result.message, author: result.author, updatedAt: Number(result.updated_at) } : defaultNews;
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const denied = await requireApiAuth(request); if (denied) return denied;
   try { return json(await readNews((env as unknown as RuntimeEnv).DB)); }
   catch { return json(defaultNews); }
 }
 
 export async function POST(request: Request) {
+  const denied = await requireApiAuth(request); if (denied) return denied;
   let body: { message?: unknown; author?: unknown };
   try { body = await request.json(); } catch { return json({ error: 'Некоректна новина.' }, 400); }
   const message = typeof body.message === 'string' ? body.message.replace(/\r\n?/g, '\n').trim().slice(0, 360) : '';

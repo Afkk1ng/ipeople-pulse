@@ -1,45 +1,35 @@
-import type { Metadata, Viewport } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
-import './globals.css';
-
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
-});
-
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
-});
+import type { Metadata, Viewport } from "next";
+import "./globals.css";
 
 export const metadata: Metadata = {
-  title: 'iPeople PULSE — продажі та зарплата',
-  description: 'Щоденний калькулятор зарплати та мотивації команди iPeople.',
-  manifest: '/manifest.webmanifest',
+  title: "iPeople Plus — аналітика продажів",
+  description: "Закрита аналітика продажів, послуг та майбутнього розрахунку зарплати.",
+  applicationName: "iPeople Plus",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "iPeople Report",
+  },
   icons: {
-    icon: [{ url: '/ipeople-pulse-icon-v2.png', type: 'image/png', sizes: '1254x1254' }],
-    apple: [{ url: '/ipeople-pulse-icon-v2.png', type: 'image/png', sizes: '180x180' }],
+    icon: "/favicon.svg",
+    shortcut: "/favicon.svg",
+    apple: "/apple-touch-icon.png",
   },
 };
 
 export const viewport: Viewport = {
-  width: 'device-width',
+  width: "device-width",
   initialScale: 1,
-  viewportFit: 'cover',
+  maximumScale: 5,
+  viewportFit: "cover",
+  themeColor: "#10243a",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="uk">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
