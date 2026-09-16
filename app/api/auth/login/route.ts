@@ -8,6 +8,11 @@ export async function POST(request: Request) {
   try { body = await request.json(); } catch { return Response.json({ error: 'Невірний запит.' }, { status: 400 }); }
   const username = typeof body.username === 'string' ? body.username.trim() : '';
   const password = typeof body.password === 'string' ? body.password : '';
-  if (!username || !password || !(await verifyPassword(username, password))) return Response.json({ error: 'Невірний логін або пароль.' }, { status: 401, headers: { 'Cache-Control': 'no-store' } });
-  return loginResponse(await issueSession(username));
+  try {
+    if (!username || !password || !(await verifyPassword(username, password))) return Response.json({ error: 'Невірний логін або пароль.' }, { status: 401, headers: { 'Cache-Control': 'no-store' } });
+    return loginResponse(await issueSession(username));
+  } catch (error) {
+    console.error('iPeople login verification failed', error instanceof Error ? error.message : 'unknown error');
+    return Response.json({ error: 'Не вдалося перевірити пароль.' }, { status: 500, headers: { 'Cache-Control': 'no-store' } });
+  }
 }
