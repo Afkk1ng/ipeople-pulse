@@ -318,14 +318,6 @@ button, a, input, select { -webkit-tap-highlight-color: transparent; }
 .payroll-breakdown span { display: flex; justify-content: space-between; gap: 8px; color: #718698; font-size: 12px; }
 .payroll-breakdown b { color: #263f52; white-space: nowrap; }
 
-.color-mapping { display: grid; grid-template-columns: minmax(180px, .8fr) minmax(300px, 1.2fr); gap: 16px; margin-top: 14px; padding: 15px; border-radius: 15px; background: #fff8ee; }
-.color-mapping h3 { margin: 0; font-size: 16px; }
-.color-mapping p:not(.panel-kicker) { margin: 5px 0 0; color: #7b6957; font-size: 12px; line-height: 1.45; }
-.color-mapping__list { display: grid; gap: 7px; }
-.color-mapping__list label { display: grid; grid-template-columns: 18px 74px minmax(150px, 1fr); align-items: center; gap: 7px; }
-.color-mapping__list i { display: block; width: 18px; height: 18px; border: 1px solid rgba(16, 36, 58, .18); border-radius: 6px; }
-.color-mapping__list span { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #6d5c4d; font-size: 12px; }
-.color-mapping__list select { height: 34px; padding: 0 8px; border: 1px solid #eadfce; border-radius: 9px; color: #364e60; background: white; font-size: 12px; }
 
 .plan-execution { margin-top: 14px; }
 .plan-execution [data-slot="table-container"] { border-top: 1px solid #e3eaed; }
@@ -555,10 +547,9 @@ button, a, input, select { -webkit-tap-highlight-color: transparent; }
   .payroll-panel { margin: 16px 0; padding: 16px; border-radius: 17px; }
   .payroll-panel__heading { align-items: stretch; flex-direction: column; }
   .payroll-panel__heading button { width: 100%; min-height: 42px; }
-  .store-plan-grid, .payroll-cards, .color-mapping { grid-template-columns: 1fr; }
+  .store-plan-grid, .payroll-cards { grid-template-columns: 1fr; }
   .team-pay-total { grid-column: auto; }
   .employee-plan-inputs { grid-template-columns: 1fr 1fr; }
-  .color-mapping__list label { grid-template-columns: 18px 68px minmax(0, 1fr); }
   .filter-row { align-items: stretch; flex-direction: column; }
   .filter-row [data-slot="tabs"] { max-width: 100%; overflow: hidden; }
   .category-tabs {

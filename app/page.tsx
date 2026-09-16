@@ -197,7 +197,7 @@ function ensureEmployeeNameAliases(rules: EmployeeRuleSet, plans: RepublicPlans)
     const canonical = normalizeEmployeeText(employee.name);
     if (!Object.keys(aliases).some((alias) => normalizeEmployeeText(alias) === canonical)) aliases[canonical] = employee.name;
   });
-  return { ...rules, aliases };
+  return { aliases };
 }
 
 function MetricCard({
@@ -467,15 +467,6 @@ function Dashboard() {
     }));
   }
 
-  function assignColor(color: string, employee: string) {
-    setEmployeeRules((current) => {
-      const colorOwners = { ...current.colorOwners };
-      if (employee) colorOwners[color] = employee;
-      else delete colorOwners[color];
-      return { ...current, colorOwners };
-    });
-  }
-
   function setEmployeeAliases(employee: string, value: string) {
     setEmployeeRules((current) => {
       const aliases = Object.fromEntries(Object.entries(current.aliases).filter(([, owner]) => owner !== employee));
@@ -570,12 +561,6 @@ function Dashboard() {
       accessories: settings.accessoriesTarget,
     }, settings);
   }), [payrollSettings, periodRecords, republicPlans]);
-
-  const unassignedColors = useMemo(() => [...new Set(
-    periodRecords
-      .filter((sale) => !sale.employee && sale.sourceColor && sale.sourceColor !== "none")
-      .map((sale) => sale.sourceColor),
-  )].sort(), [periodRecords]);
 
   const dailyData = useMemo(() => {
     const days = new Map<string, number>();
@@ -776,7 +761,7 @@ function Dashboard() {
             <div>
               <p className="panel-kicker">Республіка · мотивация</p>
               <h2 id="payroll-title">Планы и ЗП сотрудников</h2>
-              <p>Ставки перенесены из старого iPeople Plus. Имя в строке продажи важнее цвета; цвет помогает только когда имени нет.</p>
+              <p>Ставки перенесены из старого iPeople Plus. Продажа относится сотруднику только по имени в строке.</p>
             </div>
             <Button type="button" variant="outline" onClick={syncRepublicPlans} disabled={plansStatus.state === "loading"}>
               <RefreshCw className={plansStatus.state === "loading" ? "animate-spin" : ""} aria-hidden="true" />
@@ -838,23 +823,6 @@ function Dashboard() {
             })}
           </div>
 
-          {unassignedColors.length > 0 && (
-            <div className="color-mapping">
-              <div><p className="panel-kicker">Привязка цветов</p><h3>Кому принадлежат продажи без имени?</h3><p>Назначьте цвет один раз только как запасной вариант. Если в строке есть имя сотрудника, цвет игнорируется.</p></div>
-              <div className="color-mapping__list">
-                {unassignedColors.map((color) => (
-                  <label key={color}>
-                    <i style={{ backgroundColor: `#${color}` }} aria-hidden="true" />
-                    <span>#{color}</span>
-                    <select value={employeeRules.colorOwners[color] ?? ""} onChange={(event) => assignColor(color, event.target.value)}>
-                      <option value="">Не назначен</option>
-                      {republicPlans.employees.map((employee) => <option key={employee.name} value={employee.name}>{employee.name}</option>)}
-                    </select>
-                  </label>
-                ))}
-              </div>
-            </div>
-          )}
         </section>
 
         <section className="plan-execution panel" aria-labelledby="store-plan-title">
