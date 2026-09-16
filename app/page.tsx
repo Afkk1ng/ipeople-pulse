@@ -324,6 +324,19 @@ function Dashboard() {
     }
   }, [dateFrom, dateTo, employeeRules, history, importedAt, myskladSyncedAt, payrollSettings, records, republicPlans, sheetUrl, sourceMode, sourceTitle, storageReady]);
 
+  useEffect(() => {
+    if (!storageReady) return;
+    const timer = window.setTimeout(() => {
+      void fetch("/api/dashboard-settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ republicPlans, payrollSettings, employeeRules }),
+      });
+    }, 800);
+    return () => window.clearTimeout(timer);
+  }, [employeeRules, payrollSettings, republicPlans, storageReady]);
+
   async function handleSheetImport(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setImportStatus({ state: "loading", message: "Читаю отчёт…" });
@@ -650,7 +663,7 @@ function Dashboard() {
             </Button>
           </form>
           <div className="topbar-importer__meta">
-            <span title={sourceTitle}>{sourceMode === "moysklad" ? "МойСклад — основной источник · Google Sheets по желанию" : `${sourceTitle} · резервный источник`}</span>
+            <span title={sourceTitle}>{sourceMode === "moysklad" ? "МойСклад — продажи · Google Sheets — отдельные планы и сверка" : `${sourceTitle} · резервная сверка продаж`}</span>
             {history.length > 0 && (
               <label className="history-picker">
                 <History aria-hidden="true" />
@@ -767,7 +780,7 @@ function Dashboard() {
             </div>
             <Button type="button" variant="outline" onClick={syncRepublicPlans} disabled={plansStatus.state === "loading"}>
               <RefreshCw className={plansStatus.state === "loading" ? "animate-spin" : ""} aria-hidden="true" />
-              Обновить планы
+              Обновить планы из таблицы
             </Button>
           </div>
 
@@ -775,7 +788,7 @@ function Dashboard() {
             <label>
               <span>План услуг · магазин</span>
               <Input type="number" min="0" value={republicPlans.servicesTarget} onChange={(event) => setRepublicPlans((current) => ({ ...current, servicesTarget: Number(event.target.value) || 0 }))} />
-              <small>₴ · источник: лист «Республіка»</small>
+              <small>₴ · источник: отдельная таблица планов, лист «Республіка»</small>
             </label>
             <label>
               <span>План аксессуаров · магазин</span>

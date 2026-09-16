@@ -29,6 +29,19 @@ type Demand = {
 };
 type DemandResponse = { rows?: Demand[]; meta?: { size?: number } };
 
+export type MoySkladRetailShift = {
+  id?: string;
+  name?: string;
+  moment?: string;
+  openDate?: string;
+  closeDate?: string;
+  closeMoment?: string;
+  closemoment?: string;
+  retailStore?: NamedEntity;
+  store?: NamedEntity;
+  organization?: NamedEntity;
+};
+
 export type MoySkladConnection = {
   state: ConnectionState;
   message: string;
@@ -66,11 +79,14 @@ function connected(): MoySkladConnection {
   return { state: "connected", message: "МойСклад подключён — данные обновляются.", checkedAt: new Date().toISOString() };
 }
 
-async function requestMoySklad(url: URL, token: string) {
+async function requestMoySklad<T>(url: URL, token: string, init: RequestInit = {}) {
   const response = await fetch(url, {
+    ...init,
     headers: {
       Accept: "application/json",
       Authorization: `Bearer ${token}`,
+      ...(init.body ? { "Content-Type": "application/json" } : {}),
+      ...init.headers,
     },
     cache: "no-store",
   });
@@ -80,7 +96,7 @@ async function requestMoySklad(url: URL, token: string) {
     }
     throw new Error(`МойСклад временно недоступен (${response.status}).`);
   }
-  return response.json() as Promise<DemandResponse>;
+  return response.json() as Promise<T>;
 }
 
 function demandUrl(from: string, to: string, offset: number, limit = PAGE_SIZE) {
@@ -142,7 +158,7 @@ export async function checkMoySklad(): Promise<MoySkladConnection> {
   try {
     const url = new URL(`${API_BASE}/entity/demand`);
     url.searchParams.set("limit", "1");
-    await requestMoySklad(url, token);
+    await requestMoySklad<DemandResponse>(url, token);
     return connected();
   } catch (error) {
     return unavailable(error instanceof Error ? error.message : undefined);
@@ -157,7 +173,7 @@ export async function syncMoySklad(from: string, to: string): Promise<MoySkladSy
     const documents: Demand[] = [];
     let total = Infinity;
     for (let offset = 0; offset < total && offset < MAX_DOCUMENTS; offset += PAGE_SIZE) {
-      const page = await requestMoySklad(demandUrl(from, to, offset), token);
+      const page = await requestMoySklad<DemandResponse>(demandUrl(from, to, offset), token);
       const rows = page.rows ?? [];
       documents.push(...rows);
       total = page.meta?.size ?? rows.length;
@@ -171,4 +187,38 @@ export async function syncMoySklad(from: string, to: string): Promise<MoySkladSy
   } catch (error) {
     return { ...unavailable(error instanceof Error ? error.message : undefined), records: [] };
   }
+}
+
+function verifiedEntityUrl(href: string, entity: string) {
+  const url = new URL(href);
+  const allowedHost = url.hostname === "api.moysklad.ru" || url.hostname === "online.moysklad.ru";
+  const allowedPath = url.pathname.startsWith(`/api/remap/1.2/entity/${entity}/`);
+  if (url.protocol !== "https:" || !allowedHost || !allowedPath) throw new Error("Некорректная ссылка МойСклад.");
+  return url;
+}
+
+export async function getMoySkladRetailShift(href: string) {
+  const token = accessToken();
+  if (!token) throw new Error("Нет доступа к МойСклад.");
+  const url = verifiedEntityUrl(href, "retailshift");
+  url.searchParams.set("expand", "retailStore,store,organization");
+  return requestMoySklad<MoySkladRetailShift>(url, token);
+}
+
+type WebhookRow = { id?: string; url?: string; action?: string; entityType?: string };
+
+export async function registerRetailShiftWebhook(callbackUrl: string) {
+  const token = accessToken();
+  if (!token) throw new Error("Сначала подключите токен МойСклад.");
+  const listUrl = new URL(`${API_BASE}/entity/webhook`);
+  const existing = await requestMoySklad<{ rows?: WebhookRow[] }>(listUrl, token);
+  const found = existing.rows?.find((row) => row.url === callbackUrl && row.action === "UPDATE" && row.entityType?.toLowerCase() === "retailshift");
+  if (found?.id) return { id: found.id, created: false };
+
+  const created = await requestMoySklad<WebhookRow>(listUrl, token, {
+    method: "POST",
+    body: JSON.stringify({ url: callbackUrl, action: "UPDATE", entityType: "retailshift" }),
+  });
+  if (!created.id) throw new Error("МойСклад не создал вебхук смены.");
+  return { id: created.id, created: true };
 }

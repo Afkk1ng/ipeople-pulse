@@ -102,3 +102,22 @@ export const payrollRuleVersions = sqliteTable('payroll_rule_versions', {
   createdAt: integer('created_at').notNull(),
   createdBy: text('created_by').notNull(),
 });
+
+// Server-side settings mirror the latest approved plan table and employee
+// mapping so a MySklad webhook can build the same report even when no browser
+// is open.
+export const appSettings = sqliteTable('app_settings', {
+  key: text('key').primaryKey(),
+  value: text('value').notNull(),
+  updatedAt: integer('updated_at').notNull(),
+});
+
+// MySklad can retry webhooks. The shift id is unique so Telegram receives one
+// closing report per shift even when the source delivers an event twice.
+export const shiftReportDeliveries = sqliteTable('shift_report_deliveries', {
+  shiftId: text('shift_id').primaryKey(),
+  shiftDate: text('shift_date').notNull(),
+  status: text('status').notNull(),
+  sentAt: integer('sent_at'),
+  payload: text('payload').notNull(),
+}, table => [index('idx_shift_report_deliveries_date').on(table.shiftDate)]);
