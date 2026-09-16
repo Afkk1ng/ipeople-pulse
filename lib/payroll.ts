@@ -36,9 +36,12 @@ export type PayrollResult = {
 };
 
 function accessoryRate(sale: ImportedSale, progress: number) {
-  const tier = progress >= 1 ? 2 : progress >= 0.7 ? 1 : 0;
+  // Legacy iPeople Plus tiers: below 70%, 70–100%, and strictly above 100%.
+  const tier = progress > 1 ? 2 : progress >= 0.7 ? 1 : 0;
   const glass = /скло|плівк|glass|tempered|anti peep/i.test(sale.name);
+  const appleOriginal = /^\s*apple\b/i.test(sale.name) && !/\(hc\)|\bhc\b|high\s*copy|replica|реплік|копі/i.test(sale.name);
   if (glass) return [0.08, 0.09, 0.1][tier];
+  if (appleOriginal) return [0.02, 0.03, 0.04][tier];
   if (sale.revenue <= 1000) return [0.1, 0.12, 0.14][tier];
   if (sale.revenue <= 3000) return [0.03, 0.05, 0.07][tier];
   return [0.02, 0.03, 0.04][tier];

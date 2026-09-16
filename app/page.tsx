@@ -767,7 +767,7 @@ function Dashboard() {
             <div>
               <p className="panel-kicker">Республіка · мотивация</p>
               <h2 id="payroll-title">Планы и ЗП сотрудников</h2>
-              <p>Услуги: 20% базово, 25% при личном плане, 30% при плане магазина, 35% при плане магазина и личной конверсии от 60%. Продажа относится сотруднику только по имени.</p>
+              <p>Услуги: 20% базово, 25% при личном плане, 30% при плане магазина, 35% при плане магазина и личной конверсии от 60%. Аксессуары считаются по старой сетке iPeople Plus: до 70%, 70–100% и выше 100% плана; Apple original выделяется отдельно. Продажа относится сотруднику только по имени.</p>
             </div>
             <Button type="button" variant="outline" onClick={syncRepublicPlans} disabled={plansStatus.state === "loading"}>
               <RefreshCw className={plansStatus.state === "loading" ? "animate-spin" : ""} aria-hidden="true" />
