@@ -6,13 +6,14 @@ import { categoryForSale } from "@/lib/sale-classification";
 type RuntimeEnv = { MYSKLAD_ACCESS_TOKEN?: string };
 type ConnectionState = "connected" | "missing_token" | "unavailable";
 
-type NamedEntity = { name?: string; meta?: { type?: string } };
-type Attribute = { name?: string; value?: string | number | boolean | null };
+type NamedEntity = { name?: string; fullName?: string; meta?: { type?: string } };
+type Attribute = { name?: string; value?: string | number | boolean | NamedEntity | null };
 type Position = {
   id?: string;
   quantity?: number;
   price?: number;
   sum?: number;
+  discount?: number;
   assortment?: NamedEntity;
 };
 type Demand = {
@@ -21,6 +22,7 @@ type Demand = {
   moment?: string;
   applicable?: boolean;
   store?: NamedEntity;
+  retailStore?: NamedEntity;
   organization?: NamedEntity;
   owner?: NamedEntity;
   state?: NamedEntity;
@@ -56,7 +58,7 @@ export type MoySkladSync = MoySkladConnection & {
 const API_BASE = "https://api.moysklad.ru/api/remap/1.2";
 const REPUBLICA_NAME = /(республ|respublika)/i;
 const EMPLOYEE_FIELD = /(сотрудник|продавец|менеджер|employee|seller)/i;
-const PAGE_SIZE = 500;
+const PAGE_SIZE = 100;
 const MAX_DOCUMENTS = 3_000;
 
 function accessToken() {
@@ -83,9 +85,10 @@ async function requestMoySklad<T>(url: URL, token: string, init: RequestInit = {
   const response = await fetch(url, {
     ...init,
     headers: {
-      Accept: "application/json",
+      Accept: "application/json;charset=utf-8",
+      "Accept-Encoding": "gzip",
+      "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
-      ...(init.body ? { "Content-Type": "application/json" } : {}),
       ...init.headers,
     },
     cache: "no-store",
@@ -100,17 +103,17 @@ async function requestMoySklad<T>(url: URL, token: string, init: RequestInit = {
 }
 
 function demandUrl(from: string, to: string, offset: number, limit = PAGE_SIZE) {
-  const url = new URL(`${API_BASE}/entity/demand`);
+  const url = new URL(`${API_BASE}/entity/retaildemand`);
   url.searchParams.set("limit", String(limit));
   url.searchParams.set("offset", String(offset));
   url.searchParams.set("order", "moment,desc");
-  url.searchParams.set("expand", "positions,store,organization,owner,state");
+  url.searchParams.set("expand", "positions.assortment,store,organization,owner,state,retailStore");
   url.searchParams.set("filter", `moment>=${from} 00:00:00;moment<=${to} 23:59:59`);
   return url;
 }
 
 function isRepublicaDemand(demand: Demand) {
-  return [demand.store?.name, demand.organization?.name]
+  return [demand.retailStore?.name, demand.store?.name, demand.organization?.name]
     .filter(Boolean)
     .some((name) => REPUBLICA_NAME.test(name ?? ""));
 }
@@ -118,7 +121,11 @@ function isRepublicaDemand(demand: Demand) {
 function employeeFor(demand: Demand) {
   const customValue = demand.attributes?.find((attribute) => EMPLOYEE_FIELD.test(attribute.name ?? ""))?.value;
   if (typeof customValue === "string" && customValue.trim()) return customValue.trim();
-  return demand.owner?.name?.trim() || null;
+  if (customValue && typeof customValue === "object") {
+    const namedValue = customValue.name?.trim() || customValue.fullName?.trim();
+    if (namedValue) return namedValue;
+  }
+  return demand.owner?.fullName?.trim() || demand.owner?.name?.trim() || null;
 }
 
 function dateFor(moment: string | undefined) {
@@ -134,8 +141,12 @@ function salesForDemand(demand: Demand): ImportedSale[] {
   return positions.flatMap((position, positionIndex) => {
     const name = position.assortment?.name?.trim() || "Без названия";
     const quantity = Math.max(1, Math.round(Number(position.quantity) || 1));
-    const total = Number(position.sum ?? position.price ?? 0) / 100;
-    const revenue = Math.round((total / quantity) * 100) / 100;
+    const listedPrice = Number(position.price ?? 0);
+    const discount = Math.min(100, Math.max(0, Number(position.discount) || 0));
+    const unitTotal = position.sum != null
+      ? Number(position.sum) / quantity
+      : listedPrice * (1 - discount / 100);
+    const revenue = Math.round((unitTotal / 100) * 100) / 100;
     const category = categoryForSale(name, position.assortment?.meta?.type === "service");
     return Array.from({ length: quantity }, (_, unit) => ({
       id: `moysklad-${demand.id}-${position.id ?? positionIndex}-${unit}`,
@@ -156,7 +167,7 @@ export async function checkMoySklad(): Promise<MoySkladConnection> {
   const token = accessToken();
   if (!token) return missingToken();
   try {
-    const url = new URL(`${API_BASE}/entity/demand`);
+    const url = new URL(`${API_BASE}/entity/retaildemand`);
     url.searchParams.set("limit", "1");
     await requestMoySklad<DemandResponse>(url, token);
     return connected();
