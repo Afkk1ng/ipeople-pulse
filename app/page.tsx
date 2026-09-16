@@ -43,7 +43,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { importGoogleSheet, requestSheetsAccess, type ImportedSale } from "@/lib/google-sheets";
-import { emptyEmployeeRules, normalizeEmployeeText, type EmployeeRuleSet } from "@/lib/sales-import";
+import { emptyEmployeeRules, normalizeEmployeeText, resolveEmployee, type EmployeeRuleSet } from "@/lib/sales-import";
 import { calculatePayroll, type PayrollSettings } from "@/lib/payroll";
 import { defaultRepublicPlans, importRepublicPlans, type RepublicPlans } from "@/lib/republic-plans";
 import salesData from "./sales-data.json";
